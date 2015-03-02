@@ -3,6 +3,60 @@
 require_once 'businessdsa.civix.php';
 
 /**
+ * Implementation of hook civicrm_navigationMenu
+ * to add a Business DSA menu item in the Administer menu
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_navigationMenu
+ */
+function businessdsa_civicrm_navigationMenu( &$params ) {
+  $item = array (
+    'name'          =>  ts('Business DSA'),
+    'url'           =>  CRM_Utils_System::url('civicrm/componentlist', 'reset=1', true),
+    'permission'    => 'administer CiviCRM',
+  );
+  _businessdsa_civix_insert_navigation_menu($params, 'Administer', $item);
+}
+
+/**
+ * Implementation of hook civicrm_buildForm
+ *
+ * @param string $formName
+ * @param object $form
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_buildForm
+ */
+function businessdsa_civicrm_buildForm($formName, &$form) {
+  if ($formName == 'CRM_Case_Form_Activity') {
+    CRM_Businessdsa_BAO_Component::modifyFormActivityStatusList($form);
+  }
+}
+
+/**
+ * Implementation of hook civicrm_postProcess
+ *
+ * @param string $formName
+ * @param object $form
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_postProcess
+ */
+function businessdsa_civicrm_postProcess($formName, $form) {
+  if ($formName == 'CRM_Case_Form_Activity') {
+    if ($form->_action == CRM_Core_Action::ADD) {
+      /*
+       * lelijke hack om activity_id op te halen omdat die niet in de form staat in add mode
+       */
+      $query = 'SELECT MAX(activity_id) AS maxActivityId FROM civicrm_case_activity WHERE case_id = %1';
+      $params = array(1 => array($form->_caseId, 'Positive'));
+      $dao = CRM_Core_DAO::executeQuery($query, $params);
+      if ($dao->fetch()) {
+        $activityId = $dao->maxActivityId;
+      }
+    } else {
+      $activityId = $form->_activityId;
+    }
+    CRM_Businessdsa_BAO_Component::processFormBusinessDsa($form->_submitValues, $activityId);
+  }
+}
+
+/**
  * Implementation of hook_civicrm_config
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_config

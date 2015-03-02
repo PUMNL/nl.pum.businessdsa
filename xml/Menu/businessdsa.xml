@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<menu>
+  <item>
+    <path>civicrm/componentlist</path>
+    <page_callback>CRM_Businessdsa_Page_ComponentList</page_callback>
+    <title>ComponentList</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/component</path>
+    <page_callback>CRM_Businessdsa_Form_Component</page_callback>
+    <title>Component</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+</menu>
