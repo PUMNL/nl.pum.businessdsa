@@ -48,6 +48,10 @@ class CRM_Businessdsa_DAO_Component extends CRM_Core_DAO {
           'name' => 'dsa_amount',
           'type' => CRM_Utils_Type::T_INT,
         ),
+        'accountable_advance' => array(
+          'name' => 'accountable_advance',
+          'type' => CRM_Utils_Type::T_INT
+        ),
         'modified_date' => array(
           'name' => 'modified_date',
           'type' => CRM_Utils_Type::T_DATE,
@@ -86,6 +90,7 @@ class CRM_Businessdsa_DAO_Component extends CRM_Core_DAO {
         'name' => 'name',
         'description' => 'description',
         'dsa_amount' => 'dsa_amount',
+        'accountable_advance' => 'accountable_advance',
         'modified_date' => 'modified_date',
         'modified_user_id' => 'modified_user_id',
         'created_date' => 'created_date',

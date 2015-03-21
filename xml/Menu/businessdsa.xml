@@ -12,4 +12,10 @@
     <title>Component</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
+  <item>
+    <path>civicrm/businessdsa</path>
+    <page_callback>CRM_Businessdsa_Form_BusinessDsa</page_callback>
+    <title>BusinessDsa</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
 </menu>

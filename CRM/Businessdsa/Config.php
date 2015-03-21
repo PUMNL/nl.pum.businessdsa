@@ -21,7 +21,7 @@ class CRM_Businessdsa_Config {
   /*
    * properties for business debit/credit dsa activity status
    */
-  protected $businessActivityStatus = array();
+  protected $formBusinessActivityStatus = array();
   protected $paidActivityStatusText = NULL;
   protected $paidActivityStatusValue = NULL;
   protected $payableActivityStatusText = NULL;
@@ -53,10 +53,6 @@ class CRM_Businessdsa_Config {
   protected $bdsaAmountCustomFieldId = NULL;
   protected $bdsaAmountCustomFieldColumn = NULL;
 
-  protected $bdsaTypeCustomFieldName = NULL;
-  protected $bdsaTypeCustomFieldId = NULL;
-  protected $bdsaTypeCustomFieldColumn = NULL;
-
   /**
    * Function to return singleton object
    *
@@ -71,19 +67,19 @@ class CRM_Businessdsa_Config {
     return self::$_singleton;
   }
   /**
-   * Constructor function
+   * Constructor method
    */
   function __construct() {
     $this->setBusinessCaseType();
     $this->createBusinessDsaActivityTypes();
     $this->setBusinessDsaCustomGroup();
-    $this->businessActivityStatus = array('Scheduled', 'Cancelled', 'Paid', 'Payable', 'Waiting Approval');
     $this->setActivityStatus('Paid');
     $this->setActivityStatus('Payable');
+    $this->setFormBusinessActivityStatus();
   }
 
   /**
-   * Function to return payable activity status value
+   * Method to return payable activity status value
    *
    * @return int
    * @access public
@@ -93,7 +89,7 @@ class CRM_Businessdsa_Config {
   }
 
   /**
-   * Function to return payable activity status text
+   * Method to return payable activity status text
    *
    * @return string
    * @access public
@@ -103,7 +99,7 @@ class CRM_Businessdsa_Config {
   }
 
   /**
-   * Function to return paid activity status value
+   * Method to return paid activity status value
    *
    * @return int
    * @access public
@@ -113,7 +109,7 @@ class CRM_Businessdsa_Config {
   }
 
   /**
-   * Function to return paid activity status text
+   * Method to return paid activity status text
    *
    * @return string
    * @access public
@@ -123,16 +119,16 @@ class CRM_Businessdsa_Config {
   }
 
   /**
-   * Function to return business activity status array with allowed statusses
+   * Method to return business activity status array with allowed statusses
    *
    * @return array
    * @access public
    */
-  public function getBusinessActivityStatus() {
-    return $this->businessActivityStatus;
+  public function getFormBusinessActivityStatus() {
+    return $this->formBusinessActivityStatus;
   }
   /**
-   * Function to get the business case type name
+   * Method to get the business case type name
    *
    * @return string
    * @access public
@@ -142,7 +138,7 @@ class CRM_Businessdsa_Config {
   }
 
   /**
-   * Function to get business case type id
+   * Method to get business case type id
    *
    * @return int
    * @acess public
@@ -152,37 +148,7 @@ class CRM_Businessdsa_Config {
   }
 
   /**
-   * Function to get business dsa custom field type id
-   *
-   * @return int
-   * @access public
-   */
-  public function getBdsaTypeCustomFieldId() {
-    return $this->bdsaTypeCustomFieldId;
-  }
-
-  /**
-   * Function to get business dsa custom field type column name
-   *
-   * @return string
-   * @access public
-   */
-  public function getBdsaTypeCustomFieldColumn() {
-    return $this->bdsaTypeCustomFieldColumn;
-  }
-
-  /**
-   * Function to get business dsa custom field type name
-   *
-   * @return string
-   * @access public
-   */
-  public function getBdsaTypeCustomFieldName() {
-    return $this->bdsaTypeCustomFieldName;
-  }
-
-  /**
-   * Function to get business dsa custom field amount id
+   * Method to get business dsa custom field amount id
    *
    * @return int
    * @access public
@@ -192,7 +158,7 @@ class CRM_Businessdsa_Config {
   }
 
   /**
-   * Function to get business dsa custom field amount column name
+   * Method to get business dsa custom field amount column name
    *
    * @return string
    * @access public
@@ -202,7 +168,7 @@ class CRM_Businessdsa_Config {
   }
 
   /**
-   * Function to get business dsa custom field amount name
+   * Method to get business dsa custom field amount name
    *
    * @return string
    * @access public
@@ -212,7 +178,7 @@ class CRM_Businessdsa_Config {
   }
 
   /**
-   * Function to get business dsa custom field number of persons id
+   * Method to get business dsa custom field number of persons id
    *
    * @return int
    * @access public
@@ -222,7 +188,7 @@ class CRM_Businessdsa_Config {
   }
 
   /**
-   * Function to get business dsa custom field number of persons column name
+   * Method to get business dsa custom field number of persons column name
    *
    * @return string
    * @access public
@@ -232,7 +198,7 @@ class CRM_Businessdsa_Config {
   }
 
   /**
-   * Function to get business dsa custom field number of persons name
+   * Method to get business dsa custom field number of persons name
    *
    * @return string
    * @access public
@@ -242,7 +208,7 @@ class CRM_Businessdsa_Config {
   }
 
   /**
-   * Function to get business dsa custom field number of days id
+   * Method to get business dsa custom field number of days id
    *
    * @return int
    * @access public
@@ -252,7 +218,7 @@ class CRM_Businessdsa_Config {
   }
 
   /**
-   * Function to get business dsa custom field number of days column name
+   * Method to get business dsa custom field number of days column name
    *
    * @return string
    * @access public
@@ -262,7 +228,7 @@ class CRM_Businessdsa_Config {
   }
 
   /**
-   * Function to get business dsa custom field number of days name
+   * Method to get business dsa custom field number of days name
    *
    * @return string
    * @access public
@@ -272,7 +238,7 @@ class CRM_Businessdsa_Config {
   }
 
   /**
-   * Function to get business dsa custom group id
+   * Method to get business dsa custom group id
    *
    * @return int
    * @access public
@@ -282,7 +248,7 @@ class CRM_Businessdsa_Config {
   }
 
   /**
-   * Function to get business dsa custom group table
+   * Method to get business dsa custom group table
    *
    * @return string
    * @access public
@@ -292,7 +258,7 @@ class CRM_Businessdsa_Config {
   }
 
   /**
-   * Function to get business dsa custom group name
+   * Method to get business dsa custom group name
    *
    * @return string
    * @access public
@@ -302,7 +268,7 @@ class CRM_Businessdsa_Config {
   }
 
   /**
-   * Function to get credit business dsa activity type name
+   * Method to get credit business dsa activity type name
    *
    * @return string
    * @access public
@@ -312,7 +278,7 @@ class CRM_Businessdsa_Config {
   }
 
   /**
-   * Function to get credit business dsa activity type id
+   * Method to get credit business dsa activity type id
    *
    * @return int
    * @access public
@@ -322,7 +288,7 @@ class CRM_Businessdsa_Config {
   }
 
   /**
-   * Function to get debit business dsa activity type name
+   * Method to get debit business dsa activity type name
    *
    * @return string
    * @access public
@@ -332,7 +298,7 @@ class CRM_Businessdsa_Config {
   }
 
   /**
-   * Function to get debit business dsa activity type id
+   * Method to get debit business dsa activity type id
    *
    * @return int
    * @access public
@@ -342,7 +308,7 @@ class CRM_Businessdsa_Config {
   }
 
   /**
-   * Function to create the activity types for debit and credit business dsa if not exist
+   * Method to create the activity types for debit and credit business dsa if not exist
    *
    * @access protected
    */
@@ -363,7 +329,7 @@ class CRM_Businessdsa_Config {
   }
 
   /**
-   * Function to create custom group and custom fields for business dsa
+   * Method to create custom group and custom fields for business dsa
    *
    * @access protected
    */
@@ -383,7 +349,7 @@ class CRM_Businessdsa_Config {
   }
 
   /**
-   * Function to create custom fields for business dsa
+   * Method to create custom fields for business dsa
    *
    * @access protected
    */
@@ -392,7 +358,6 @@ class CRM_Businessdsa_Config {
     $this->bdsaNoOfDaysCustomFieldName = 'bdsa_no_of_days';
     $this->bdsaNoOfPersonsCustomFieldName = 'bdsa_no_of_persons';
     $this->bdsaAmountCustomFieldName = 'bdsa_amount';
-    $this->bdsaTypeCustomFieldName = 'bdsa_type';
     $customFieldToBeCreated = array(
       0 => array(
         'name' => 'NoOfDays',
@@ -414,14 +379,7 @@ class CRM_Businessdsa_Config {
         'dataType' => 'Int',
         'htmlType' => 'Text',
         'is_view' => 1,
-        'defaultValue' => 0),
-      3 => array(
-        'name' => 'Type',
-        'label' => 'Type',
-        'dataType' => 'String',
-        'htmlType' => 'Text',
-        'is_view' => 1,
-        'defaultValue' => 'D'));
+        'defaultValue' => 0));
 
     foreach ($customFieldToBeCreated as $customFieldToBeCreated) {
       $nameProperty = 'bdsa'.$customFieldToBeCreated['name'].'CustomFieldName';
@@ -441,7 +399,7 @@ class CRM_Businessdsa_Config {
   }
 
   /**
-   * Function to set the case type id for business
+   * Method to set the case type id for business
    *
    * @throws Exception when API OptionValue Getvalue throws error
    */
@@ -461,7 +419,7 @@ class CRM_Businessdsa_Config {
   }
 
   /**
-   * Function to get the case type option group id
+   * Method to get the case type option group id
    *
    * @return int $caseTypeOptionGroupId
    * @throws Exception when API OptionGroup Getvalue throws error
@@ -481,7 +439,7 @@ class CRM_Businessdsa_Config {
   }
 
   /**
-   * Function to get or create activity status for business dsa
+   * Method to get or create activity status for business dsa
    *
    * @param string $activityStatusName
    * @access protected
@@ -489,7 +447,7 @@ class CRM_Businessdsa_Config {
   protected function setActivityStatus($activityStatusName) {
     $textPropertyName = strtolower($activityStatusName).'ActivityStatusText';
     $valuePropertyName = strtolower($activityStatusName).'ActivityStatusValue';
-    $optionName = 'dsa_'.strtolower($activityStatusName);
+    $optionName = 'bdsa_'.strtolower($activityStatusName);
     $activityStatus = CRM_Threepeas_Utils::getActivityStatusWithName($optionName);
     if (empty($activityStatus)) {
       $activityStatus = CRM_Threepeas_Utils::createActivityStatus($optionName, $activityStatusName);
@@ -499,5 +457,19 @@ class CRM_Businessdsa_Config {
       $this->$textPropertyName = $activityStatusName;
       $this->$valuePropertyName = $activityStatus['value'];
     }
+  }
+
+  /**
+   * Method to set the activity status list for form usage
+   *
+   * @access protected
+   */
+  protected function setFormBusinessActivityStatus() {
+    $params = array(
+      'option_group_id' => CRM_Threepeas_Utils::getActivityStatusOptionGroupId(),
+      'name' => 'Scheduled');
+    $scheduledActivityStatus = civicrm_api3('OptionValue', 'Getsingle', $params);
+    $this->formBusinessActivityStatus[$scheduledActivityStatus['value']] = $scheduledActivityStatus['label'];
+    $this->formBusinessActivityStatus[$this->payableActivityStatusValue] = $this->payableActivityStatusText;
   }
 }

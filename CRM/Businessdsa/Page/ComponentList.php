@@ -57,6 +57,9 @@ class CRM_Businessdsa_Page_ComponentList extends CRM_Core_Page {
         $displayRow['description'] .= '...';
       }
     }
+    if (isset($componentRow['accountable_advance'])) {
+      $displayRow['accountable'] = CRM_Threepeas_Utils::setIsActive($componentRow['accountable_advance']);
+    }
     if (isset($componentRow['is_active'])) {
       $displayRow['enabled'] = CRM_Threepeas_Utils::setIsActive($componentRow['is_active']);
     }

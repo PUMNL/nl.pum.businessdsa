@@ -25,34 +25,35 @@ function businessdsa_civicrm_navigationMenu( &$params ) {
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_buildForm
  */
 function businessdsa_civicrm_buildForm($formName, &$form) {
-  if ($formName == 'CRM_Case_Form_Activity') {
-    CRM_Businessdsa_BAO_Component::modifyFormActivityStatusList($form);
-  }
-}
-
-/**
- * Implementation of hook civicrm_postProcess
- *
- * @param string $formName
- * @param object $form
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_postProcess
- */
-function businessdsa_civicrm_postProcess($formName, $form) {
-  if ($formName == 'CRM_Case_Form_Activity') {
-    if ($form->_action == CRM_Core_Action::ADD) {
-      /*
-       * lelijke hack om activity_id op te halen omdat die niet in de form staat in add mode
-       */
-      $query = 'SELECT MAX(activity_id) AS maxActivityId FROM civicrm_case_activity WHERE case_id = %1';
-      $params = array(1 => array($form->_caseId, 'Positive'));
-      $dao = CRM_Core_DAO::executeQuery($query, $params);
-      if ($dao->fetch()) {
-        $activityId = $dao->maxActivityId;
-      }
-    } else {
-      $activityId = $form->_activityId;
+  /*
+   * for manage Case form, determine if business DSA or credit business DSA are allowed operations
+   */
+  if ($formName == 'CRM_Case_Form_CaseView') {
+    $extensionConfig = CRM_Businessdsa_Config::singleton();
+    if ($form->_caseType == $extensionConfig->getBusinessCaseTypeName()) {
+      CRM_Businessdsa_BAO_BusinessDsa::modifyFormActivityTypesList($form);
     }
-    CRM_Businessdsa_BAO_Component::processFormBusinessDsa($form->_submitValues, $activityId);
+  }
+  /*
+   * if business DSA activity added to case, process debit or credit
+   */
+  if ($formName == 'CRM_Case_Form_Activity') {
+    $extensionConfig = CRM_Businessdsa_Config::singleton();
+    $bdsaAction = CRM_Businessdsa_Utils::getFormAction($form->_action);
+    if ($form->_caseType == $extensionConfig->getBusinessCaseTypeName()) {
+      switch ($form->_activityTypeId) {
+        case $extensionConfig->getDebBdsaActivityTypeId():
+          $urlParams = 'reset=1&action='.$bdsaAction.'&cid='.$form->_caseId.'&tid='.$form->getVar('_targetContactId').'&sid='.$form->getVar('_sourceContactId');
+          $bdsaUrl = CRM_Utils_System::url('civicrm/businessdsa', $urlParams, true);
+          CRM_Utils_System::redirect($bdsaUrl);
+          break;
+        case $extensionConfig->getCredBdsaActivityTypeId():
+          CRM_Businessdsa_BAO_BusinessDsa::createCredit($form->_caseId);
+          $session = CRM_Core_Session::singleton();
+          CRM_Utils_System::redirect($session->readUserContext());
+          break;
+      }
+    }
   }
 }
 
@@ -160,3 +161,4 @@ function businessdsa_civicrm_caseTypes(&$caseTypes) {
 function businessdsa_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
   _businessdsa_civix_civicrm_alterSettingsFolders($metaDataFolders);
 }
+

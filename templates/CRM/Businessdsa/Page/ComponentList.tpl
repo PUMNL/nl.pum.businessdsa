@@ -15,6 +15,7 @@
         <th>{ts}Component Name{/ts}</th>
         <th>{ts}Amount{/ts}</th>
         <th>{ts}Description{/ts}</th>
+        <th>{ts}Accountable?{/ts}</th>
         <th>{ts}Enabled?{/ts}</th>
         <th>{ts}Date Modified{/ts}</th>
         <th>{ts}Modified By{/ts}</th>
@@ -32,6 +33,7 @@
           <td>{$component.name}</td>
           <td>{$component.amount|crmMoney}</td>
           <td>{$component.description}</td>
+          <td>{$component.accountable}</td>
           <td>{$component.enabled}</td>
           <td>{$component.modified_date|crmDate}</td>
           <td>{$component.modified_by}</td>

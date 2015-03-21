@@ -133,6 +133,7 @@ class CRM_Businessdsa_Form_Component extends CRM_Core_Form {
       'cols'  => 80), false);
     $this->add('text', 'dsa_amount', ts('Amount'));
     $this->add('checkbox', 'is_active', ts('Enabled'));
+    $this->add('checkbox', 'accountable_advance', ts('Accountable'));
     switch ($this->_action) {
       case CRM_Core_Action::VIEW:
         $this->addButtons(array(

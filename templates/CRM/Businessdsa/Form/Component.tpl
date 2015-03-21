@@ -1,6 +1,6 @@
 {* HEADER *}
 <h3>{$formHeader}</h3>
-{* HEADER *}
+
 <div class="crm-block crm-form-block">
   <div class="crm-submit-buttons">
     {include file="CRM/common/formButtons.tpl" location="top"}
@@ -13,6 +13,12 @@
         {if $elementName eq 'dsa_amount'}
           <div class="content">{$form.$elementName.value|crmMoney}</div>
         {elseif $elementName eq 'is_active'}
+          {if $form.$elementName.value eq 1}
+            <div class="content">{ts}Yes{/ts}</div>
+          {else}
+            <div class="content">{ts}No{/ts}</div>
+          {/if}
+        {elseif $elementName eq 'accountable_advance'}
           {if $form.$elementName.value eq 1}
             <div class="content">{ts}Yes{/ts}</div>
           {else}
