@@ -20,7 +20,8 @@ class CRM_Businessdsa_Form_BusinessDsa extends CRM_Core_Form {
   public function buildQuickForm() {
     CRM_Utils_System::setTitle('Add Business DSA');
     $this->assign('formHeader', ts('Business DSA data for case ').$this->caseId);
-    $this->assign('infoAmount', CRM_Businessdsa_BAO_BusinessDsa::calculateBaseAmount());
+    $this->assign('baseAmount', CRM_Businessdsa_BAO_BusinessDsa::calculateBaseAmount());
+    $this->assign('accountableAmount', CRM_Businessdsa_BAO_BusinessDsa::calculateAccountableAmount());
     $this->add('hidden', 'caseId', $this->caseId);
     $this->add('hidden', 'targetId', $this->targetId);
     $this->add('hidden', 'sourceId', $this->sourceId);

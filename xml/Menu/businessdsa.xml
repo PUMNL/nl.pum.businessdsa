@@ -18,4 +18,10 @@
     <title>BusinessDsa</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
+  <item>
+    <path>civicrm/bdsalist</path>
+    <page_callback>CRM_Businessdsa_Page_BusinessDsaList</page_callback>
+    <title>BusinessDsaList</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
 </menu>

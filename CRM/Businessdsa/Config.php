@@ -52,6 +52,35 @@ class CRM_Businessdsa_Config {
   protected $bdsaAmountCustomFieldName = NULL;
   protected $bdsaAmountCustomFieldId = NULL;
   protected $bdsaAmountCustomFieldColumn = NULL;
+  /*
+   * properties for option group General Ledger
+   */
+  protected $glOptionGroupId = NULL;
+  protected $bdsaGlValue = NULL;
+  /*
+   * properties for custom group Additional Data and field Shortname
+   */
+  protected $additionalDataCustomGroupId = NULL;
+  protected $additionalDataCustomGroupTable = NULL;
+  protected $shortNameColumn = NULL;
+  /*
+   * properties for bankdata
+   */
+  protected $bankCustomGroupId = NULL;
+  protected $bankCustomGroupTable = NULL;
+  protected $bankCustomFields = array();
+  /*
+   * properties for pum case number
+   */
+  protected $pumCaseCustomGroupId = NULL;
+  protected $pumCaseCustomGroupTable = NULL;
+  protected $pumCaseCustomFields = array();
+  /*
+   * properties for donor data custom group and donor code
+   */
+  protected $donorDataCustomGroupId = NULL;
+  protected $donorDataCustomGroupTable = NULL;
+  protected $donorCodeColumn = NULL;
 
   /**
    * Function to return singleton object
@@ -76,6 +105,68 @@ class CRM_Businessdsa_Config {
     $this->setActivityStatus('Paid');
     $this->setActivityStatus('Payable');
     $this->setFormBusinessActivityStatus();
+    $this->setGeneralLedgerProperties();
+    $this->setAdditionalDataCustomGroup();
+    $this->setPumCaseNumberCustomGroup();
+    $this->setBankInformationCustomGroup();
+    $this->setDonorDataCustomGroup();}
+
+  /**
+   * Method to get the pum case custom fields
+   *
+   * @return array
+   * @access public
+   */
+  public function getPumCaseCustomFields() {
+    return $this->pumCaseCustomFields;
+  }
+  /**
+   * Method to get the pum case number custom group table
+   *
+   * @return string
+   * @access public
+   */
+  public function getPumCaseCustomGroupTable() {
+    return $this->pumCaseCustomGroupTable;
+  }
+
+  /**
+   * Method to get the pum case number custom group id
+   *
+   * @return int
+   * @access public
+   */
+  public function getPumCaseCustomGroupId() {
+    return $this->pumCaseCustomGroupId;
+  }
+  /**
+   * Method to get the short name column
+   *
+   * @return string
+   * @access public
+   */
+  public function getShortNameColumn() {
+    return $this->shortNameColumn;
+  }
+
+  /**
+   * Method to get the custom group table for additional data
+   *
+   * @return string
+   * @access public
+   */
+  public function getAdditionalDataCustomGroupTable() {
+    return $this->additionalDataCustomGroupTable;
+  }
+
+  /**
+   * Method to get the additional data custom group id
+   *
+   * @return int
+   * @access public
+   */
+  public function getAdditionalDataCustomGroupId() {
+    return $this->additionalDataCustomGroupId;
   }
 
   /**
@@ -313,12 +404,12 @@ class CRM_Businessdsa_Config {
    * @access protected
    */
   protected function createBusinessDsaActivityTypes() {
-    $this->debBdsaActTypeName = 'debet_business_dsa';
-    $debetActivityType = CRM_Threepeas_Utils::getActivityTypeWithName($this->debBdsaActTypeName);
-    if (empty($debetActivityType)) {
-      $debetActivityType = CRM_Threepeas_Utils::createActivityType($this->debBdsaActTypeName, 'Business DSA', 7);
+    $this->debBdsaActTypeName = 'debit_business_dsa';
+    $debitActivityType = CRM_Threepeas_Utils::getActivityTypeWithName($this->debBdsaActTypeName);
+    if (empty($debitActivityType)) {
+      $debitActivityType = CRM_Threepeas_Utils::createActivityType($this->debBdsaActTypeName, 'Business DSA', 7);
     }
-    $this->debBdsaActTypeId = $debetActivityType['value'];
+    $this->debBdsaActTypeId = $debitActivityType['value'];
 
     $this->credBdsaActTypeName = 'credit_business_dsa';
     $creditActivityType = CRM_Threepeas_Utils::getActivityTypeWithName($this->credBdsaActTypeName);
@@ -471,5 +562,105 @@ class CRM_Businessdsa_Config {
     $scheduledActivityStatus = civicrm_api3('OptionValue', 'Getsingle', $params);
     $this->formBusinessActivityStatus[$scheduledActivityStatus['value']] = $scheduledActivityStatus['label'];
     $this->formBusinessActivityStatus[$this->payableActivityStatusValue] = $this->payableActivityStatusText;
+  }
+
+  /**
+   * Method to set the properties for General Ledger Business DSA
+   *
+   * @access private
+   */
+  private function setGeneralLedgerProperties() {
+    $this->glOptionGroupId = CRM_Businessdsa_Utils::getOptionGroupIdWithName('general_ledger');
+    $this->bdsaGlValue = CRM_Businessdsa_Utils::createOptionValueIfNotExists($this->glOptionGroupId, 'business_dsa');
+  }
+
+  /**
+   * Method to set the properties for the additional data custom group and required custom fields
+   *
+   * @throws Exception when no custom group or custom field
+   * @access private
+   */
+  private function setAdditionalDataCustomGroup() {
+    $customGroup = CRM_Businessdsa_Utils::getCustomGroup('Additional_Data');
+    if (empty($customGroup)) {
+      throw new Exception('Could not find custom group with name Additional Data');
+    } else {
+      $this->additionalDataCustomGroupId = $customGroup['id'];
+      $this->additionalDataCustomGroupTable = $customGroup['table_name'];
+      $customField = CRM_Businessdsa_Utils::getSingleCustomField($this->additionalDataCustomGroupId, 'Shortname');
+      if (empty($customField)) {
+        throw new Exception('Could not find custom field Shortname in group Additional Data');
+      } else {
+        $this->shortNameColumn = $customField['column_name'];
+      }
+    }
+  }
+
+  /**
+   * Method to set the properties for the pum case number custom group and required custom fields
+   *
+   * @access private
+   */
+  private function setPumCaseNumberCustomGroup() {
+    $customGroup = CRM_Businessdsa_Utils::getCustomGroup('PUM_Case_number');
+    if (empty($customGroup)) {
+      throw new Exception('Could not find custom group with name PUM Case Number');
+    } else {
+      $this->pumCaseCustomGroupId = $customGroup['id'];
+      $this->pumCaseCustomGroupTable = $customGroup['table_name'];
+      $customFields = CRM_Businessdsa_Utils::getAllCustomFields($this->pumCaseCustomGroupId);
+      CRM_Core_Error::debug('customFields', $customFields);
+      foreach ($customFields as $customField) {
+        $pumCaseCustomField = array();
+        $pumCaseCustomField['id'] = $customField['id'];
+        $pumCaseCustomField['column_name'] = $customField['column_name'];
+        $this->pumCaseCustomFields[$customField['name']] = $pumCaseCustomField;
+      }
+    }
+  }
+
+  /**
+   * Method to set the properties for the bank information custom group and required custom fields
+   *
+   * @access private
+   */
+  private function setBankInformationCustomGroup() {
+    $customGroup = CRM_Businessdsa_Utils::getCustomGroup('Bank_Information');
+    if (empty($customGroup)) {
+      throw new Exception('Could not find custom group with name Bank Information');
+    } else {
+      $this->bankCustomGroupId = $customGroup['id'];
+      $this->bankCustomGroupTable = $customGroup['table_name'];
+      $customFields = CRM_Businessdsa_Utils::getAllCustomFields($this->bankCustomGroupId);
+      CRM_Core_Error::debug('customFields', $customFields);
+      foreach ($customFields as $customField) {
+        $bankCustomField = array();
+        $bankCustomField['id'] = $customField['id'];
+        $bankCustomField['column_name'] = $customField['column_name'];
+        $this->bankCustomFields[$customField['name']] = $bankCustomField;
+      }
+    }
+  }
+
+  /**
+   * Method to set the properties for the donor details fa custom group and donor code field
+   *
+   * @throws Exception when no custom group or custom field
+   * @access private
+   */
+  private function setDonorDataCustomGroup() {
+    $customGroup = CRM_Businessdsa_Utils::getCustomGroup('Donor_details_FA');
+    if (empty($customGroup)) {
+      throw new Exception('Could not find custom group with name Donor Details FA');
+    } else {
+      $this->donorDataCustomGroupId = $customGroup['id'];
+      $this->donorDataCustomGroupTable = $customGroup['table_name'];
+      $customField = CRM_Businessdsa_Utils::getSingleCustomField($this->donorDataCustomGroupId, 'Donor_code');
+      if (empty($customField)) {
+        throw new Exception('Could not find custom field Donor Code in group Donor Details FA');
+      } else {
+        $this->donorCodeColumn = $customField['column_name'];
+      }
+    }
   }
 }

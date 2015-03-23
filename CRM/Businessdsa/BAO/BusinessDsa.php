@@ -124,21 +124,19 @@ class CRM_Businessdsa_BAO_BusinessDsa {
    */
   public static function modifyFormActivityTypesList(&$form) {
     $typeIndex = $form->_elementIndex['activity_type_id'];
-    $formAction = $form->getVar('_action');
-    self::removeInvalidActivityTypeIdsFromList($form->_elements[$typeIndex]->_options, $formAction, $form->_caseID);
+    self::removeInvalidActivityTypeIdsFromList($form->_elements[$typeIndex]->_options, $form->_caseID);
   }
 
   /**
    * Method to remove unwanted list options for activity types
    *
    * @param array $typeOptions
-   * @param int $formAction
    * @param int $caseId
    * @access protected
    * @static
    */
-  protected static function removeInvalidActivityTypeIdsFromList(&$typeOptions, $formAction, $caseId) {
-    $typeIdsToBeRemoved = self::getActivityTypeIdsToBeRemoved($formAction, $caseId);
+  protected static function removeInvalidActivityTypeIdsFromList(&$typeOptions, $caseId) {
+    $typeIdsToBeRemoved = self::getActivityTypeIdsToBeRemoved($caseId);
     foreach ($typeOptions as $typeOptionId => $typeOption) {
       if (in_array($typeOption['attr']['value'], $typeIdsToBeRemoved)) {
         unset($typeOptions[$typeOptionId]);
@@ -149,13 +147,12 @@ class CRM_Businessdsa_BAO_BusinessDsa {
   /**
    * Method to get the activity type ids to be removed from form list
    *
-   * @param int $formAction
    * @param int $caseId
    * @return array $typeIdsToBeRemoved
    * @access protected
    * @static
    */
-  protected static function getActivityTypeIdsToBeRemoved($formAction, $caseId) {
+  protected static function getActivityTypeIdsToBeRemoved($caseId) {
     $typeIdsToBeRemoved = array();
     $extensionConfig = CRM_Businessdsa_Config::singleton();
 
@@ -187,11 +184,9 @@ class CRM_Businessdsa_BAO_BusinessDsa {
     $debitParams = array(
       'case_id' => $caseId,
       'activity_type_id' => $extensionConfig->getDebBdsaActivityTypeId());
-    $activityCount = civicrm_api3('Activity', 'Getcount', $debitParams);
+    $activityCount = civicrm_api3('CaseActivity', 'Getcount', $debitParams);
     if ($activityCount > 0) {
-      if (CRM_Core_Permission::check('create DSA Activity')) {
-        return TRUE;
-      }
+      return TRUE;
     }
     return FALSE;
   }
@@ -209,7 +204,7 @@ class CRM_Businessdsa_BAO_BusinessDsa {
     $debitParams = array(
       'case_id' => $caseId,
       'activity_type_id' => $extensionConfig->getDebBdsaActivityTypeId());
-    $activityCount = civicrm_api3('Activity', 'Getcount', $debitParams);
+    $activityCount = civicrm_api3('CaseActivity', 'Getcount', $debitParams);
     if ($activityCount == 0) {
       if (CRM_Core_Permission::check('create DSA Activity')) {
         return TRUE;

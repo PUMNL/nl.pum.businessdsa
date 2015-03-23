@@ -10,13 +10,12 @@ require_once 'businessdsa.civix.php';
  */
 function businessdsa_civicrm_navigationMenu( &$params ) {
   $item = array (
-    'name'          =>  ts('Business DSA'),
-    'url'           =>  CRM_Utils_System::url('civicrm/componentlist', 'reset=1', true),
-    'permission'    => 'administer CiviCRM',
+    'name' => ts('Business DSA Components'),
+    'url' => CRM_Utils_System::url('civicrm/componentlist', 'reset=1', true),
+    'permission' => 'administer CiviCRM',
   );
   _businessdsa_civix_insert_navigation_menu($params, 'Administer', $item);
 }
-
 /**
  * Implementation of hook civicrm_buildForm
  *

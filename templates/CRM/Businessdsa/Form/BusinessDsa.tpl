@@ -2,7 +2,8 @@
 <h3>{$formHeader}</h3>
 <div class="messages status no-popup">
   <div class="icon inform-icon"></div>
-  {ts}The base business DSA amount is {$infoAmount|crmMoney} (per person per day){/ts}
+  {ts}The base business DSA amount is {$baseAmount|crmMoney}, the accountable amount is
+    {$accountableAmount|crmMoney} (per person per day){/ts}
 </div>
 
 <div class="crm-block crm-form-block">
