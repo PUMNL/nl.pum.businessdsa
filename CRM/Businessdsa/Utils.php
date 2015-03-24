@@ -140,7 +140,7 @@ class CRM_Businessdsa_Utils {
     }
     $extensionConfig = CRM_Businessdsa_Config::singleton();
     $query = 'SELECT '.$extensionConfig->getShortNameColumn().' AS shortName FROM '
-      .$extensionConfig->getAdditionalDataCustomGroupTable.' WHERE entity_id = %1';
+      .$extensionConfig->getAdditionalDataCustomGroupTable().' WHERE entity_id = %1';
     $params = array(1 => array($contactId, 'Integer'));
     $dao = CRM_Core_DAO::executeQuery($query, $params);
     if ($dao->fetch()) {
@@ -222,5 +222,131 @@ class CRM_Businessdsa_Utils {
     $amount = $amount * 100;
     $amountString = (string) $amount;
     return $amountString;
+  }
+
+  /**
+   * Method to check if the date is a valid date
+   *
+   * @param string $date
+   * @return bool
+   * @access public
+   */
+  public static function isValidDate($date) {
+    $stamp = strtotime($date);
+    if (!is_numeric($stamp)) {
+      return FALSE;
+    }
+    $month = date( 'm', $stamp );
+    $day   = date( 'd', $stamp );
+    $year  = date( 'Y', $stamp );
+    if (checkdate($month, $day, $year)) {
+      return TRUE;
+    }
+    return FALSE;
+  }
+
+  /**
+   * Method to get the donor code of a donor (contact with subtype donor)
+   *
+   * @param int $donorId
+   * @return string
+   * @access public
+   */
+  public static function getDonorCode($donorId) {
+    if (empty($donorId)) {
+      return '';
+    }
+    $extensionConfig = CRM_Businessdsa_Config::singleton();
+    $query = 'SELECT '.$extensionConfig->getDonorCodeColumn().' AS donorCode FROM '
+      .$extensionConfig->getDonorDataCustomGroupTable().' WHERE entity_id = %1';
+    $params = array(1 => array($donorId, 'Integer'));
+    $dao = CRM_Core_DAO::executeQuery($query, $params);
+    if ($dao->fetch()) {
+      return $dao->donorCode;
+    }
+    return '';
+  }
+
+  /**
+   * Method to get the pum case data custom data for a case
+   *
+   * @param int $caseId
+   * @return Object
+   * @access public
+   * @static
+   */
+  public static function getPumCaseData($caseId) {
+    $result = array();
+    $extensionConfig = CRM_Businessdsa_Config::singleton();
+    $pumCaseFields = $extensionConfig->getPumCaseCustomFields();
+    $selectFields = array();
+    foreach ($pumCaseFields as $pumCaseFieldName => $pumCaseField) {
+      $selectFields[] = $pumCaseField['column_name'];
+    }
+    $query = 'SELECT '.implode(', ', $selectFields).' FROM '
+      .$extensionConfig->getPumCaseCustomGroupTable().' WHERE entity_id = %1';
+    $params = array(1 => array($caseId, 'Integer'));
+    $dao = CRM_Core_DAO::executeQuery($query, $params);
+    if ($dao->fetch()) {
+      foreach ($pumCaseFields as $pumCaseFieldName => $pumCaseField) {
+        $result[$pumCaseFieldName] = $dao->$pumCaseField['column_name'];
+      }
+      return $result;
+    } else {
+      return array();
+    }
+  }
+
+  /**
+   * Method to get the bank information for an expert
+   *
+   * @param int $expertId (contact_id)
+   * @return Object
+   * @access public
+   * @static
+   */
+  public static function getExpertBankData($expertId) {
+    $result = array();
+    $extensionConfig = CRM_Businessdsa_Config::singleton();
+    $bankFields = $extensionConfig->getBankCustomFields();
+    $selectFields = array();
+    foreach ($bankFields as $bankFieldName => $bankField) {
+      $selectFields[] = $bankField['column_name'];
+    }
+    $query = 'SELECT '.implode(', ', $selectFields).' FROM '
+      .$extensionConfig->getBankCustomGroupTable().' WHERE entity_id = %1';
+    $params = array(1 => array($expertId, 'Integer'));
+    $dao = CRM_Core_DAO::executeQuery($query, $params);
+    if ($dao->fetch()) {
+      foreach ($bankFields as $bankFieldName => $bankField) {
+        $result[$bankFieldName] = $dao->$bankField['column_name'];
+      }
+      return $result;
+    } else {
+      return array();
+    }
+  }
+
+  /**
+   * Method to get the iso code of a country id
+   *
+   * @param int $countryId
+   * @return string
+   * @access public
+   * @static
+   */
+  public static function getCountryIsoCode($countryId) {
+    if (empty($countryId)) {
+      return '';
+    }
+    $countryParams = array(
+      'id' => $countryId,
+      'return' => 'iso_code');
+    try {
+      $countryIso = civicrm_api3('Country', 'Getvalue', $countryParams);
+      return $countryIso;
+    } catch (CiviCRM_API3_Exception $ex) {
+      return '';
+    }
   }
 }

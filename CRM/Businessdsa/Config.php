@@ -109,7 +109,57 @@ class CRM_Businessdsa_Config {
     $this->setAdditionalDataCustomGroup();
     $this->setPumCaseNumberCustomGroup();
     $this->setBankInformationCustomGroup();
-    $this->setDonorDataCustomGroup();}
+    $this->setDonorDataCustomGroup();
+  }
+
+  /**
+   * Method to get the column for donor code in donor data custom group
+   *
+   * @return string
+   * @access public
+   */
+  public function getDonorCodeColumn() {
+    return $this->donorCodeColumn;
+  }
+
+  /**
+   * Method to get donor data custom group id
+   *
+   * @return int
+   * @access public
+   */
+  public function getDonorDataCustomGroupId() {
+    return $this->donorDataCustomGroupId;
+  }
+
+  /**
+   * Method to get donor data custom group table name
+   *
+   * @return string
+   * @access public
+   */
+  public function getDonorDataCustomGroupTable() {
+    return $this->donorDataCustomGroupTable;
+  }
+  /**
+   * Method to get the general ledger option group id
+   *
+   * @return int
+   * @access public
+   */
+  public function getGlOptionGroupId() {
+    return $this->glOptionGroupId;
+  }
+
+  /**
+   * Method to get the general ledger option value for business dsa
+   *
+   * @return string
+   * @access public
+   */
+  public function getBdsaGlValue() {
+    return $this->bdsaGlValue;
+  }
 
   /**
    * Method to get the pum case custom fields
@@ -120,6 +170,17 @@ class CRM_Businessdsa_Config {
   public function getPumCaseCustomFields() {
     return $this->pumCaseCustomFields;
   }
+
+  /**
+   * Method to get the bank information custom fields
+   *
+   * @return array
+   * @access public
+   */
+  public function getBankCustomFields() {
+    return $this->bankCustomFields  ;
+  }
+
   /**
    * Method to get the pum case number custom group table
    *
@@ -131,6 +192,16 @@ class CRM_Businessdsa_Config {
   }
 
   /**
+   * Method to get the bank information custom group table
+   *
+   * @return string
+   * @access public
+   */
+  public function getBankCustomGroupTable() {
+    return $this->bankCustomGroupTable;
+  }
+
+  /**
    * Method to get the pum case number custom group id
    *
    * @return int
@@ -139,6 +210,17 @@ class CRM_Businessdsa_Config {
   public function getPumCaseCustomGroupId() {
     return $this->pumCaseCustomGroupId;
   }
+
+  /**
+   * Method to get the bank custom group id
+   *
+   * @return int
+   * @access public
+   */
+  public function getBankCustomGroupId() {
+    return $this->bankCustomGroupId;
+  }
+
   /**
    * Method to get the short name column
    *
@@ -609,7 +691,6 @@ class CRM_Businessdsa_Config {
       $this->pumCaseCustomGroupId = $customGroup['id'];
       $this->pumCaseCustomGroupTable = $customGroup['table_name'];
       $customFields = CRM_Businessdsa_Utils::getAllCustomFields($this->pumCaseCustomGroupId);
-      CRM_Core_Error::debug('customFields', $customFields);
       foreach ($customFields as $customField) {
         $pumCaseCustomField = array();
         $pumCaseCustomField['id'] = $customField['id'];
@@ -632,7 +713,6 @@ class CRM_Businessdsa_Config {
       $this->bankCustomGroupId = $customGroup['id'];
       $this->bankCustomGroupTable = $customGroup['table_name'];
       $customFields = CRM_Businessdsa_Utils::getAllCustomFields($this->bankCustomGroupId);
-      CRM_Core_Error::debug('customFields', $customFields);
       foreach ($customFields as $customField) {
         $bankCustomField = array();
         $bankCustomField['id'] = $customField['id'];

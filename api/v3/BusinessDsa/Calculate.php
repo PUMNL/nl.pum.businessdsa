@@ -34,7 +34,11 @@ function civicrm_api3_business_dsa_calculate($params) {
   if (!isset($params['no_of_persons']) || empty($params['no_of_persons'])) {
     throw new API_Exception('no_of_persons is a required param and can not be empty');
   }
-  $dsaAmount = CRM_Businessdsa_BAO_Component::calculateBusinessDsa($params['no_of_days'], $params['no_of_persons']);
-  $returnValues['amount'] = $dsaAmount;
+  $baseAmount = CRM_Businessdsa_BAO_BusinessDsa::calculateBaseAmount() * $params['no_of_persons'] * $params['no_of_days'];
+  $accountableAmount = CRM_Businessdsa_BAO_BusinessDsa::calculateAccountableAmount() * $params['no_of_persons'] * $params['no_of_days'];
+  $dsaAmount = $baseAmount + $accountableAmount;
+  $returnValues[] = array('amount' => $dsaAmount);
+  $returnValues[] = array('base_amount' => $baseAmount);
+  $returnValues[] = array('accountable_amount' => $accountableAmount);
   return civicrm_api3_create_success($returnValues, $params, 'BusinessDsa', 'Calculate');
 }
