@@ -67,9 +67,9 @@ class CRM_Businessdsa_BAO_BusinessDsa {
       'case_id' => $params['caseId']);
     $expertId = CRM_Threepeas_BAO_PumCaseRelation::getCaseExpert($params['caseId']);
     if (empty($expertId)) {
-      $params['target_id'] = $params['targetId'];
+      $activityParams['target_id'] = $params['targetId'];
     } else {
-      $params['target_id'] = $expertId;
+      $activityParams['target_id'] = $expertId;
     }
     $createdActivity = civicrm_api3('Activity', 'Create', $activityParams);
     self::createBusinessDsaRecord($createdActivity['id'], $bdsaAmount, $params['noOfDays'], $params['noOfPersons'], 'D');
@@ -468,7 +468,33 @@ class CRM_Businessdsa_BAO_BusinessDsa {
     if (empty($expertId)) {
       return array();
     }
-
-
+    $extensionConfig = CRM_Businessdsa_Config::singleton();
+    $expectBdsas = array();
+    $actQuery = 'SELECT activity_id, label AS status, status_id, bdsa.*
+      FROM civicrm_activity_contact
+      JOIN civicrm_activity act ON activity_id = act.id
+      JOIN civicrm_option_value ON value = status_id AND option_group_id = %1
+      LEFT JOIN '.$extensionConfig->getBdsaCustomGroupTable().' bdsa ON activity_id = entity_id
+      WHERE is_current_revision = %2 AND is_deleted = %3 AND record_type_id = %4
+      AND contact_id = %5 AND activity_type_id IN(%6, %7)';
+    $actParams = array(
+      1 => array(CRM_Businessdsa_Utils::getOptionGroupIdWithName('activity_status'), 'Integer'),
+      2 => array(1, 'Integer'),
+      3 => array(0, 'Integer'),
+      4 => array(3, 'Integer'),
+      5 => array($expertId, 'Integer'),
+      6 => array($extensionConfig->getCredBdsaActivityTypeId(), 'Integer'),
+      7 => array($extensionConfig->getDebBdsaActivityTypeId(), 'Integer'));
+    $daoAct = CRM_Core_DAO::executeQuery($actQuery, $actParams);
+    while ($daoAct->fetch()) {
+      $daoProperties = get_object_vars($daoAct);
+      foreach ($daoProperties as $key => $value) {
+        if ($key != 'N' && $key != 'id' && substr($key,0,1) != '_') {
+          $result[$key] = $value;
+        }
+      }
+      $expectBdsas[$result['activity_id']] = $result;
+    }
+    return $expectBdsas;
   }
 }
