@@ -179,14 +179,17 @@ function _businessdsa_requiredExtensions() {
   $localExtensions = civicrm_api3('Extension', 'Get', array());
   $requiredExtensions = array('nl.pum.dsa', 'nl.pum.sequence', 'nl.pum.threepeas', 'org.civicoop.api.caseactivity');
   foreach ($requiredExtensions as $requiredKey) {
-    if (!in_array($requiredKey, $localExtensions['values'], true)) {
-      throw new Exception('Required extension '.$requiredKey.' is not installed');
-    } else {
-      foreach ($localExtensions as $localExtension) {
-        if ($localExtension['key'] == $requiredKey && $localExtension['status'] != 'installed') {
-          throw new Exception('Required extension '.$requiredKey.' is not installed');
+    $extensionFound = FALSE;
+    foreach ($localExtensions['values'] as $localExtension) {
+      if ($localExtension['key'] == $requiredKey) {
+        $extensionFound = TRUE;
+        if ($localExtension['status'] != 'installed') {
+          throw new Exception('Required extension ' . $requiredKey . ' is not installed');
         }
       }
+    }
+    if ($extensionFound == FALSE) {
+      throw new Exception('Required extension ' . $requiredKey . ' is not installed');
     }
   }
 }
