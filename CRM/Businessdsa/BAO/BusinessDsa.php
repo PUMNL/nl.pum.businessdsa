@@ -254,9 +254,27 @@ class CRM_Businessdsa_BAO_BusinessDsa {
       $dao = CRM_Core_DAO::executeQuery($query, $queryParams);
       while ($dao->fetch()) {
         $payableBdsa[] = self::formatExportPayment($dao);
+        self::setBdsaToPaid($dao->bdsa_activity_id);
       }
     }
     return $payableBdsa;
+  }
+
+  /**
+   * Method to set hte activity status to paid
+   *
+   * @param int $activityId
+   * @access private
+   * @static
+   */
+  private static function setBdsaToPaid($activityId) {
+    if (!empty($activityId)) {
+      $extensionConfig = CRM_Businessdsa_Config::singleton();
+      $params = array(
+        'id' => $activityId,
+        'status_id' => $extensionConfig->getPaidActivityStatusValue());
+      civicrm_api3('Activity', 'Create', $params);
+    }
   }
 
   /**
@@ -323,6 +341,7 @@ class CRM_Businessdsa_BAO_BusinessDsa {
     $paymentLine['OmschrijvingA'] = $expertData['last_name'];
     $paymentLine['CrediteurNr'] = CRM_Businessdsa_Utils::getShortnameForContact($caseExpertId);
     $paymentLine['Shortname'] = $paymentLine['CrediteurNr'];
+    $naamOrganisatie = '';
     if (isset($expertData['middle_name']) && !empty($expertData['middle_name'])) {
       $naamOrganisatie = $expertData['middle_name'] . ' ';
     }
