@@ -19,7 +19,5 @@
  */
 function civicrm_api3_business_dsa_export($params) {
   $returnValues = CRM_Businessdsa_BAO_BusinessDsa::getPayableBdsa('', '');
-  CRM_Core_Error::debug('data', $returnValues);
-  exit();
   return civicrm_api3_create_success($returnValues, $params, 'BusinessDsa', 'Export');
 }

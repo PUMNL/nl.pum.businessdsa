@@ -82,6 +82,11 @@ function businessdsa_civicrm_xmlMenu(&$files) {
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_install
  */
 function businessdsa_civicrm_install() {
+  /*
+   * check if extensions that are required are active on install
+   */
+  _businessdsa_requiredExtensions();
+
   _businessdsa_civix_civicrm_install();
 }
 
@@ -159,5 +164,30 @@ function businessdsa_civicrm_caseTypes(&$caseTypes) {
  */
 function businessdsa_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
   _businessdsa_civix_civicrm_alterSettingsFolders($metaDataFolders);
+}
+
+/**
+ * Function to check if the required extensions are installed:
+ * - org.civicoop.api.caseactivity
+ * - nl.pum.dsa
+ * - nl.pum.sequence
+ * - nl.pum.threepeas
+ *
+ * @throws Exception if one of the required extensions is not active
+ */
+function _businessdsa_requiredExtensions() {
+  $localExtensions = civicrm_api3('Extension', 'Get', array());
+  $requiredExtensions = array('nl.pum.dsa', 'nl.pum.sequence', 'nl.pum.threepeas', 'org.civicoop.api.caseactivity');
+  foreach ($requiredExtensions as $requiredKey) {
+    if (!in_array($requiredKey, $localExtensions['values'], true)) {
+      throw new Exception('Required extension '.$requiredKey.' is not installed');
+    } else {
+      foreach ($localExtensions as $localExtension) {
+        if ($localExtension['key'] == $requiredKey && $localExtension['status'] != 'installed') {
+          throw new Exception('Required extension '.$requiredKey.' is not installed');
+        }
+      }
+    }
+  }
 }
 
