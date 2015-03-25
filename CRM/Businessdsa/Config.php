@@ -486,14 +486,14 @@ class CRM_Businessdsa_Config {
    * @access protected
    */
   protected function createBusinessDsaActivityTypes() {
-    $this->debBdsaActTypeName = 'debit_business_dsa';
+    $this->debBdsaActTypeName = 'Business DSA';
     $debitActivityType = CRM_Threepeas_Utils::getActivityTypeWithName($this->debBdsaActTypeName);
     if (empty($debitActivityType)) {
       $debitActivityType = CRM_Threepeas_Utils::createActivityType($this->debBdsaActTypeName, 'Business DSA', 7);
     }
     $this->debBdsaActTypeId = $debitActivityType['value'];
 
-    $this->credBdsaActTypeName = 'credit_business_dsa';
+    $this->credBdsaActTypeName = 'Credit Business DSA';
     $creditActivityType = CRM_Threepeas_Utils::getActivityTypeWithName($this->credBdsaActTypeName);
     if (empty($creditActivityType)) {
       $creditActivityType = CRM_Threepeas_Utils::createActivityType($this->credBdsaActTypeName, 'Credit Business DSA', 7);
