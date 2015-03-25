@@ -61,11 +61,16 @@ class CRM_Businessdsa_BAO_BusinessDsa {
     $subject = self::buildBusinessDsaActivitySubject($params['noOfPersons'], $params['noOfDays']);
     $activityParams = array(
       'activity_type_id' => $extensionConfig->getDebBdsaActivityTypeId(),
-      'target_id' => $params['targetId'],
       'source_id' => $params['sourceId'],
       'subject' => $subject,
       'status_id' => $extensionConfig->getPayableActivityStatusValue(),
       'case_id' => $params['caseId']);
+    $expertId = CRM_Threepeas_BAO_PumCaseRelation::getCaseExpert($params['caseId']);
+    if (empty($expertId)) {
+      $params['target_id'] = $params['targetId'];
+    } else {
+      $params['target_id'] = $expertId;
+    }
     $createdActivity = civicrm_api3('Activity', 'Create', $activityParams);
     self::createBusinessDsaRecord($createdActivity['id'], $bdsaAmount, $params['noOfDays'], $params['noOfPersons'], 'D');
   }
@@ -225,9 +230,9 @@ class CRM_Businessdsa_BAO_BusinessDsa {
     $debitParams = array(
       'case_id' => $caseId,
       'activity_type_id' => $extensionConfig->getDebBdsaActivityTypeId());
-    $debitActivity = civicrm_api3('Activity', 'Getsingle', $debitParams);
+    $debitActivity = civicrm_api3('CaseActivity', 'Getsingle', $debitParams);
     if ($debitActivity['status_id'] == $extensionConfig->getPayableActivityStatusValue()) {
-      civicrm_api3('Activity', 'Delete', array('id' => $debitActivity['id']));
+      civicrm_api3('Activity', 'Delete', array('id' => $debitActivity['activity_id']));
     } else {
       $creditParams = array(
         'id' => $debitActivity['id'],
@@ -460,6 +465,9 @@ class CRM_Businessdsa_BAO_BusinessDsa {
     return $queryParams;
   }
   public static function getExpertBdsa($expertId) {
+    if (empty($expertId)) {
+      return array();
+    }
 
 
   }
