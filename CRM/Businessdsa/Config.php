@@ -621,6 +621,7 @@ class CRM_Businessdsa_Config {
     $textPropertyName = strtolower($activityStatusName).'ActivityStatusText';
     $valuePropertyName = strtolower($activityStatusName).'ActivityStatusValue';
     $optionName = 'bdsa_'.strtolower($activityStatusName);
+    $activityStatusName = 'Business DSA '.$activityStatusName;
     $activityStatus = CRM_Threepeas_Utils::getActivityStatusWithName($optionName);
     if (empty($activityStatus)) {
       $activityStatus = CRM_Threepeas_Utils::createActivityStatus($optionName, $activityStatusName);
