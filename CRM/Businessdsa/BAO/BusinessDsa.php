@@ -161,7 +161,7 @@ class CRM_Businessdsa_BAO_BusinessDsa {
     $typeIdsToBeRemoved = array();
     $extensionConfig = CRM_Businessdsa_Config::singleton();
 
-    if (!CRM_Core_Permission::check('edit DSA Activity')) {
+    if (!CRM_Core_Permission::check('edit DSA activity')) {
       $typeIdsToBeRemoved[] = $extensionConfig->getCredBdsaActivityTypeId();
       $typeIdsToBeRemoved[] = $extensionConfig->getDebBdsaActivityTypeId();
     } else {
@@ -211,7 +211,7 @@ class CRM_Businessdsa_BAO_BusinessDsa {
       'activity_type_id' => $extensionConfig->getDebBdsaActivityTypeId());
     $activityCount = civicrm_api3('CaseActivity', 'Getcount', $debitParams);
     if ($activityCount == 0) {
-      if (CRM_Core_Permission::check('create DSA Activity')) {
+      if (CRM_Core_Permission::check('create DSA activity')) {
         return TRUE;
       }
     }
