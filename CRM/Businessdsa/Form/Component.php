@@ -85,6 +85,7 @@ class CRM_Businessdsa_Form_Component extends CRM_Core_Form {
    * @access public
    */
   function postProcess() {
+    $this->componentId = $this->_submitValues['component_id'];
     if ($this->_action != CRM_Core_Action::VIEW) {
       $this->saveComponent($this->_submitValues);
     }
@@ -110,15 +111,18 @@ class CRM_Businessdsa_Form_Component extends CRM_Core_Form {
         $defaults['is_active'] = 1;
         break;
     }
+    $defaults['component_id'] = $this->componentId;
     return $defaults;
   }
   protected function setComponentDefaults() {
     $defaults = array();
-    $component = CRM_Businessdsa_BAO_Component::getValues(array('id' => $this->componentId));
-    foreach ($component[$this->componentId] as $componentName => $componentValue) {
-      $defaults[$componentName] = $componentValue;
+    if (!empty($this->componentId)) {
+      $component = CRM_Businessdsa_BAO_Component::getValues(array('id' => $this->componentId));
+      foreach ($component[$this->componentId] as $componentName => $componentValue) {
+        $defaults[$componentName] = $componentValue;
+      }
+      return $defaults;
     }
-    return $defaults;
   }
 
   /**
@@ -127,6 +131,7 @@ class CRM_Businessdsa_Form_Component extends CRM_Core_Form {
    * @access protected
    */
   protected function addFormElements() {
+    $this->add('hidden', 'component_id', ts('ComponentID'), array('id' => 'component_id'));
     $this->add('text', 'name', ts('Name'), array('size' => CRM_Utils_Type::HUGE), true);
     $this->add('textarea', 'description', ts('Description'), array(
       'rows'  => 4,
@@ -176,7 +181,7 @@ class CRM_Businessdsa_Form_Component extends CRM_Core_Form {
   static function validateNameUpdate($fields) {
     $component = new CRM_Businessdsa_BAO_Component();
     $component->name = $fields['name'];
-    if ($component->count() > 0) {
+    if ($component->count() > 1) {
       $component->fetch();
       if ($component->id != $fields['component_id']) {
         $errors['name'] = ts('There is already a business DSA component with this name');
@@ -211,6 +216,8 @@ class CRM_Businessdsa_Form_Component extends CRM_Core_Form {
    */
   protected function saveComponent($formValues) {
     $params = array();
+    $params['is_active'] = 0;
+    $params['accountable_advance'] = 0;
     $componentFields = CRM_Businessdsa_BAO_Component::fields();
     foreach($formValues as $key => $value) {
       if (CRM_Utils_Array::value($key, $componentFields)) {
@@ -227,6 +234,7 @@ class CRM_Businessdsa_Form_Component extends CRM_Core_Form {
       case CRM_Core_Action::UPDATE:
         $params['modified_date'] = date('Ymd');
         $params['modified_user_id'] = $session->get('userID');
+        $params['id'] = $formValues['component_id'];
         break;
     }
     CRM_Businessdsa_BAO_Component::add($params);
