@@ -235,7 +235,7 @@ class CRM_Businessdsa_BAO_BusinessDsa {
       civicrm_api3('Activity', 'Delete', array('id' => $debitActivity['activity_id']));
     } else {
       $creditParams = array(
-        'id' => $debitActivity['id'],
+        'id' => $debitActivity['activity_id'],
         'activity_type_id' => $extensionConfig->getCredBdsaActivityTypeId(),
         'status_id' => $extensionConfig->getPayableActivityStatusValue());
       civicrm_api3('Activity', 'Create', $creditParams);

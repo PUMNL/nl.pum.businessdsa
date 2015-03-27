@@ -16,6 +16,21 @@ function businessdsa_civicrm_navigationMenu( &$params ) {
   );
   _businessdsa_civix_insert_navigation_menu($params, 'Administer', $item);
 }
+
+/**
+ * Implementation of hook civicrm_alterTemplateFile
+ * Use special template for activity change status in case
+ *
+ * @param string $formName
+ * @param object $form
+ * @param string $context
+ * @param string $tplName
+ */
+function businessdsa_civicrm_alterTemplateFile($formName, &$form, $context, &$tplName) {
+  if ($formName === 'CRM_Case_Form_ActivityChangeStatus') {
+    $activityType = $form->getVar('atype');
+  }
+}
 /**
  * Implementation of hook civicrm_buildForm
  *
