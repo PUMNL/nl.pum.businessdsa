@@ -6,7 +6,6 @@
  * @author Erik Hommel (CiviCooP) <erik.hommel@civicoop.org>
  * @date 23 February 2015
  * @license AGPL-3.0
-
  */
 class CRM_Businessdsa_Config {
   /*
@@ -513,7 +512,7 @@ class CRM_Businessdsa_Config {
     if (empty($customGroup)) {
       $this->bdsaCustomGroupTable = 'civicrm_value_pum_business_dsa';
       $this->bdsaCustomGroupId = CRM_Threepeas_Utils::createCustomGroup($this->bdsaCustomGroupName,
-        $this->bdsaCustomGroupTable, 'Activity', array($this->debBdsaActTypeId), 'Business DSA');
+        $this->bdsaCustomGroupTable, 'Activity', array($this->debBdsaActTypeId, $this->credBdsaActTypeId), 'Business DSA');
     } else {
       $this->bdsaCustomGroupId = $customGroup['id'];
       $this->bdsaCustomGroupTable = $customGroup['table_name'];
