@@ -500,21 +500,38 @@ class CRM_Businessdsa_BAO_BusinessDsa {
 
   /**
    * Method to check if the activity type is a dsa type activity.
+   * (this method also does checks for other extensions so the form
+   * checking in case view is done in one extension. Method_exists
+   * checks prevent errors if other extensions not present)
    *
    * @param int $activityTypeId
+   * @param int $activityStatusId
    * @return bool
    * @access public
    * @static
    */
-  public static function isDsaActivityType($activityTypeId) {
+  public static function isProtectedActivityType($activityTypeId, $activityStatusId) {
     $extensionConfig = CRM_Businessdsa_Config::singleton();
     if ($activityTypeId == $extensionConfig->getDebBdsaActivityTypeId()
-      || $activityTypeId == $extensionConfig->getCredBdsaActivityTypeId()
-      || CRM_Dsa_Utils::isDsaActivityType($activityTypeId) == TRUE) {
-      return TRUE;
-    } else {
-      return FALSE;
+      || $activityTypeId == $extensionConfig->getCredBdsaActivityTypeId()) {
+        return TRUE;
     }
+    if (method_exists('CRM_Dsa_Utils', 'isDsaActivityType')) {
+      if (CRM_Dsa_Utils::isDsaActivityType($activityTypeId, $activityStatusId) == TRUE) {
+        return TRUE;
+      }
+    }
+    /*
+     * issue 1692 - check here so we have all checks for protected case activity in one spot
+     * if activity type customer contribution and status is completed, protect
+     */
+    if (self::isCustomerContribution($activityTypeId, $activityStatusId) == TRUE) {
+      return TRUE;
+    }
+    return FALSE;
+  }
+  private static function isCustomerContribution($activityTypeId, $activityStatusId) {
+
   }
 
   /**
@@ -736,7 +753,7 @@ class CRM_Businessdsa_BAO_BusinessDsa {
       /*
        * no permissions for DSA activities
        */
-      if (self::isDsaActivityType($dao->type)) {
+      if (self::isProtectedActivityType($dao->type, $dao->status)) {
         $allowEdit = FALSE;
         $allowDelete = FALSE;
       }
@@ -812,7 +829,7 @@ class CRM_Businessdsa_BAO_BusinessDsa {
       /*
        * only if not a DSA activity
        */
-      if (!self::isDsaActivityType($dao->type)) {
+      if (!self::isProtectedActivityType($dao->type, $dao->status)) {
         if (CRM_Case_BAO_Case::checkPermission($dao->id, 'Move To Case', $dao->activity_type_id)) {
           $url .= " | " . '<a href="#" onClick="Javascript:fileOnCase( \'move\',' . $dao->id . ', ' . $caseID . ' ); return false;">' . ts('Move To Case') . '</a> ';
         }
@@ -862,12 +879,14 @@ class CRM_Businessdsa_BAO_BusinessDsa {
         }
       }
 
-      if ($allowEdit) {
+      /*
+       * PUM issue 1692 : do not allow status edit if activity_type = customer contribution
+       */
+      if ($allowEdit && CRM_Businessdsa_Utils::isCustomerContribution($dao->type) == TRUE) {
         $values[$dao->id]['status'] = '<a class="crm-activity-status crm-activity-status-' . $dao->id . ' ' . $values[$dao->id]['class'] . ' crm-activity-change-status crm-editable-enabled" activity_id=' . $dao->id . ' current_status=' . $dao->status . ' case_id=' . $caseID . '" href="#" title=\'' . $statusTitle . '\'>' . $values[$dao->id]['status'] . '</a>';
       }
     }
     $dao->free();
-
     return $values;
   }
 }

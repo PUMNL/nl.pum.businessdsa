@@ -349,4 +349,21 @@ class CRM_Businessdsa_Utils {
       return '';
     }
   }
+
+  /**
+   * Method to check if the activity type id is a customer contribution
+   *
+   * @param int $activityTypeId
+   * @return bool
+   * @access pubic
+   * @static
+   */
+  public static function isCustomerContribution($activityTypeId) {
+    $customerContributionTypeId = CRM_Threepeas_Utils::getActivityTypeWithName('Condition: Customer Contribution.');
+    if ($activityTypeId == $customerContributionTypeId) {
+      return TRUE;
+    } else {
+      return FALSE;
+    }
+  }
 }
