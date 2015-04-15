@@ -30,7 +30,7 @@ function businessdsa_civicrm_buildForm($formName, &$form) {
   if ($formName == 'CRM_Case_Form_CaseView') {
     $extensionConfig = CRM_Businessdsa_Config::singleton();
     if ($form->_caseType == $extensionConfig->getBusinessCaseTypeName()) {
-      CRM_Businessdsa_BAO_BusinessDsa::modifyFormActivityTypesList($form);
+      CRM_Businessdsa_BAO_BusinessDsa::modifyFormActivityTypesList($form, 'caseview');
     }
   }
   /*
@@ -40,6 +40,7 @@ function businessdsa_civicrm_buildForm($formName, &$form) {
     $extensionConfig = CRM_Businessdsa_Config::singleton();
     $bdsaAction = CRM_Businessdsa_Utils::getFormAction($form->_action);
     if ($form->_caseType == $extensionConfig->getBusinessCaseTypeName()) {
+      CRM_Businessdsa_BAO_BusinessDsa::modifyFormActivityTypesList($form, 'activity');
       switch ($form->_activityTypeId) {
         case $extensionConfig->getDebBdsaActivityTypeId():
           $urlParams = 'reset=1&action='.$bdsaAction.'&cid='.$form->_caseId.'&tid='.$form->getVar('_targetContactId').'&sid='.$form->getVar('_sourceContactId');

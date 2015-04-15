@@ -123,13 +123,21 @@ class CRM_Businessdsa_BAO_BusinessDsa {
   /**
    * Method to set the activity types list for the CaseView summary for Business
    *
-   * @param $form
+   * @param object $form
+   * @param string $context
    * @access public
    * @static
    */
-  public static function modifyFormActivityTypesList(&$form) {
-    $typeIndex = $form->_elementIndex['activity_type_id'];
-    self::removeInvalidActivityTypeIdsFromList($form->_elements[$typeIndex]->_options, $form->_caseID);
+  public static function modifyFormActivityTypesList(&$form, $context) {
+    if ($context == 'caseview') {
+      $typeIndex = $form->_elementIndex['activity_type_id'];
+    }
+    if ($context == 'activity') {
+      $typeIndex = $form->_elementIndex['followup_activity_type_id'];
+    }
+    if (!empty($typeIndex)) {
+      self::removeInvalidActivityTypeIdsFromList($form->_elements[$typeIndex]->_options, $form->_caseID, $context);
+    }
   }
 
   /**
@@ -137,11 +145,12 @@ class CRM_Businessdsa_BAO_BusinessDsa {
    *
    * @param array $typeOptions
    * @param int $caseId
+   * @param string $context
    * @access protected
    * @static
    */
-  protected static function removeInvalidActivityTypeIdsFromList(&$typeOptions, $caseId) {
-    $typeIdsToBeRemoved = self::getActivityTypeIdsToBeRemoved($caseId);
+  protected static function removeInvalidActivityTypeIdsFromList(&$typeOptions, $caseId, $context) {
+    $typeIdsToBeRemoved = self::getActivityTypeIdsToBeRemoved($caseId, $context);
     foreach ($typeOptions as $typeOptionId => $typeOption) {
       if (in_array($typeOption['attr']['value'], $typeIdsToBeRemoved)) {
         unset($typeOptions[$typeOptionId]);
@@ -153,23 +162,27 @@ class CRM_Businessdsa_BAO_BusinessDsa {
    * Method to get the activity type ids to be removed from form list
    *
    * @param int $caseId
+   * @param string $context
    * @return array $typeIdsToBeRemoved
    * @access protected
    * @static
    */
-  protected static function getActivityTypeIdsToBeRemoved($caseId) {
+  protected static function getActivityTypeIdsToBeRemoved($caseId, $context) {
     $typeIdsToBeRemoved = array();
     $extensionConfig = CRM_Businessdsa_Config::singleton();
-
-    if (!CRM_Core_Permission::check('edit DSA activity')) {
+    if ($context == 'activity') {
       $typeIdsToBeRemoved[] = $extensionConfig->getCredBdsaActivityTypeId();
       $typeIdsToBeRemoved[] = $extensionConfig->getDebBdsaActivityTypeId();
     } else {
-      if (!self::dsaCanBeCredited($caseId)) {
-        $typeIdsToBeRemoved[] = $extensionConfig->getCredBdsaActivityTypeId();
-      }
-      if (!self::dsaCanBeDebited($caseId)) {
-        $typeIdsToBeRemoved[] = $extensionConfig->getDebBdsaActivityTypeId();
+
+      if (!CRM_Core_Permission::check('edit DSA activity')) {
+      } else {
+        if (!self::dsaCanBeCredited($caseId)) {
+          $typeIdsToBeRemoved[] = $extensionConfig->getCredBdsaActivityTypeId();
+        }
+        if (!self::dsaCanBeDebited($caseId)) {
+          $typeIdsToBeRemoved[] = $extensionConfig->getDebBdsaActivityTypeId();
+        }
       }
     }
     return $typeIdsToBeRemoved;
