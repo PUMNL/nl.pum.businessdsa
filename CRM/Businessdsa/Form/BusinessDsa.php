@@ -50,10 +50,16 @@ class CRM_Businessdsa_Form_BusinessDsa extends CRM_Core_Form {
       $session->setStatus(ts('You can not edit a business DSA activity, you can credit one and then add a new one'), 'Invalid Action', 'error');
       CRM_Utils_System::redirect($session->readUserContext());
     }
-
     $this->caseId = CRM_Utils_Request::retrieve('cid', 'Integer');
     $this->targetId = CRM_Utils_Request::retrieve('tid', 'Integer');
     $this->sourceId = CRM_Utils_Request::retrieve('sid', 'Integer');
+
+    $conditionError = $this->validateBdsaConditions();
+    if (!empty($conditionError)) {
+      $session = CRM_Core_Session::singleton();
+      $session->setStatus(ts($conditionError), 'Invalid', 'error');
+      CRM_Utils_System::redirect($session->readUserContext());
+    }
   }
 
   /**
@@ -79,6 +85,55 @@ class CRM_Businessdsa_Form_BusinessDsa extends CRM_Core_Form {
     $this->addFormRule(array('CRM_Businessdsa_Form_BusinessDsa', 'validateIntegers'));
   }
 
+  /**
+   * Method to validate the business dsa conditions. Adding is only allowed if:
+   * - there is an active expert on the case
+   * - the expert has a country in his/her primary address
+   * - the expert has a bank account number and a bank country
+   * - the case has a PUM Case Number
+   * - the attached donor has a donor code
+   *
+   * @return string $error
+   * @access public
+   */
+  protected function validateBdsaConditions() {
+    $error = null;
+    $expertId = CRM_Threepeas_BAO_PumCaseRelation::getCaseExpert($this->caseId);
+
+    if (empty($expertId)) {
+      $error = ts('There is no expert attached to the case, you can not enter a business dsa yet');
+      return $error;
+    }
+
+    $expertShortName = CRM_Businessdsa_Utils::getShortnameForContact($expertId);
+    if (empty($expertShortName)) {
+      $error = ts('The attached expert does not have a shortname, you can not enter a business dsa yet');
+      return $error;
+    }
+
+    $expertCountryId = CRM_Businessdsa_Utils::getExpertCountry($expertId);
+    if (empty($expertCountryId)) {
+      $error = ts('The attached expert does not have a valid country in his/her address, you can not enter a business dsa yet');
+      return $error;
+    }
+
+    $expertBankData = CRM_Businessdsa_Utils::getExpertBankData($expertId);
+    if (!isset($expertBankData['Bank_Account_Number']) || empty($expertBankData['Bank_Account_Number'])) {
+      $error = ts('The attached expert does not have a Bank Account Number, you can not enter a business dsa yet');
+      return $error;
+    }
+    if (!isset($expertBankData['Bank_Country_ISO_Code']) || empty($expertBankData['Bank_Country_ISO_Code'])) {
+      $error = ts('The attached expert does not have a Bank Country, you can not enter a business dsa yet');
+      return $error;
+    }
+
+    $donorCode = CRM_Businessdsa_Utils::getDonorCode(CRM_Threepeas_BAO_PumDonorLink::getCaseDonor($this->caseId));
+    if (empty($donorCode)) {
+      $error = ts('The attached donor does not have a Donor Code, you can not enter a business dsa yet');
+      return $error;
+    }
+    return $error;
+  }
   /**
    * Function to validate that number of persons and days are integers
    *

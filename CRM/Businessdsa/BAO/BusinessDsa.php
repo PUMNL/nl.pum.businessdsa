@@ -136,7 +136,8 @@ class CRM_Businessdsa_BAO_BusinessDsa {
       $typeIndex = $form->_elementIndex['followup_activity_type_id'];
     }
     if (!empty($typeIndex)) {
-      self::removeInvalidActivityTypeIdsFromList($form->_elements[$typeIndex]->_options, $form->_caseID, $context);
+      $caseId = $form->getVar('_caseID');
+      self::removeInvalidActivityTypeIdsFromList($form->_elements[$typeIndex]->_options, $caseId, $context);
     }
   }
 
@@ -198,13 +199,16 @@ class CRM_Businessdsa_BAO_BusinessDsa {
    * @static
    */
   protected static function dsaCanBeCredited($caseId) {
-    $extensionConfig = CRM_Businessdsa_Config::singleton();
-    $debitParams = array(
-      'case_id' => $caseId,
-      'activity_type_id' => $extensionConfig->getDebBdsaActivityTypeId());
-    $activityCount = civicrm_api3('CaseActivity', 'Getcount', $debitParams);
-    if ($activityCount > 0) {
-      return TRUE;
+    if (!empty($caseId)) {
+      $extensionConfig = CRM_Businessdsa_Config::singleton();
+      $debitParams = array(
+        'case_id' => $caseId,
+        'activity_type_id' => $extensionConfig->getDebBdsaActivityTypeId());
+      $activityCount = civicrm_api3('CaseActivity', 'Getcount', $debitParams);
+      if ($activityCount > 0) {
+        return TRUE;
+      }
+      return FALSE;
     }
     return FALSE;
   }
@@ -218,15 +222,18 @@ class CRM_Businessdsa_BAO_BusinessDsa {
    * @static
    */
   protected static function dsaCanBeDebited($caseId) {
-    $extensionConfig = CRM_Businessdsa_Config::singleton();
-    $debitParams = array(
-      'case_id' => $caseId,
-      'activity_type_id' => $extensionConfig->getDebBdsaActivityTypeId());
-    $activityCount = civicrm_api3('CaseActivity', 'Getcount', $debitParams);
-    if ($activityCount == 0) {
-      if (CRM_Core_Permission::check('create DSA activity')) {
-        return TRUE;
+    if (!empty($caseId)) {
+      $extensionConfig = CRM_Businessdsa_Config::singleton();
+      $debitParams = array(
+        'case_id' => $caseId,
+        'activity_type_id' => $extensionConfig->getDebBdsaActivityTypeId());
+      $activityCount = civicrm_api3('CaseActivity', 'Getcount', $debitParams);
+      if ($activityCount == 0) {
+        if (CRM_Core_Permission::check('create DSA activity')) {
+          return TRUE;
+        }
       }
+      return FALSE;
     }
     return FALSE;
   }

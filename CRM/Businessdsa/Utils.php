@@ -319,7 +319,11 @@ class CRM_Businessdsa_Utils {
     $dao = CRM_Core_DAO::executeQuery($query, $params);
     if ($dao->fetch()) {
       foreach ($bankFields as $bankFieldName => $bankField) {
-        $result[$bankFieldName] = $dao->$bankField['column_name'];
+        if ($bankFieldName == 'Bank_Country_ISO_Code') {
+          $result[$bankFieldName] = self::getCountryIsoCode($dao->$bankField['column_name']);
+        } else {
+          $result[$bankFieldName] = $dao->$bankField['column_name'];
+        }
       }
       return $result;
     } else {
@@ -365,5 +369,30 @@ class CRM_Businessdsa_Utils {
     } else {
       return FALSE;
     }
+  }
+
+  /**
+   * Method to get the primary country of the expert
+   *
+   * @param int $expertId
+   * @return int $countryId
+   * @access public
+   * @static
+   */
+  public static function getExpertCountry($expertId) {
+    $countryId = null;
+    if (!empty($expertId)) {
+      $params = array(
+        'contact_id' => $expertId,
+        'is_primary' => 1,
+        'return' => 'country_id'
+      );
+      try {
+        $countryId = civicrm_api3('Address', 'Getvalue', $params);
+      } catch (CiviCRM_API3_Exception $ex) {
+        $countryId = null;
+      }
+    }
+    return $countryId;
   }
 }
