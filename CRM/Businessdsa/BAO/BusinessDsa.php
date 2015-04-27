@@ -267,17 +267,19 @@ class CRM_Businessdsa_BAO_BusinessDsa {
    *
    * @param string $fromDate
    * @param string $toDate
+   * @param array $warnings
    * @return array $payableBdsa
    * @access public
    * @static
    */
-  public static function getPayableBdsa($fromDate, $toDate) {
+  public static function getPayableBdsa($fromDate, $toDate, &$warnings) {
     $payableBdsa = array();
     if (self::validExportParams($fromDate, $toDate) == TRUE) {
       $query = self::buildExportQuery($fromDate, $toDate);
       $queryParams = self::buildExportQueryParams($fromDate, $toDate);
       $dao = CRM_Core_DAO::executeQuery($query, $queryParams);
       while ($dao->fetch()) {
+        self::validatePaymentLine($dao->bdsa_case_id, $dao->bdsa_activity_id, $warnings);
         $payableBdsa[] = self::formatExportPayment($dao);
         self::setBdsaToPaid($dao->bdsa_activity_id);
       }
@@ -908,5 +910,56 @@ class CRM_Businessdsa_BAO_BusinessDsa {
     }
     $dao->free();
     return $values;
+  }
+
+  /**
+   * Method to validate the payment line for the business dsa
+   *
+   * @param int $caseId
+   * @param int $activityId
+   * @param array $warnings
+   * @access protected
+   * @static
+   */
+  protected static function validatePaymentLine($caseId, $activityId, &$warnings) {
+    $errorMessages = array();
+    $expertId = CRM_Threepeas_BAO_PumCaseRelation::getCaseExpert($caseId);
+
+    if (empty($expertId)) {
+      $errorMessages[] = ts('There is no expert attached to the case, you can not enter a business dsa yet');
+    }
+
+    if (empty($errorMessages)) {
+      $expertShortName = CRM_Businessdsa_Utils::getShortnameForContact($expertId);
+      if (empty($expertShortName)) {
+        $errorMessages[] = ts('The attached expert does not have a shortname, you can not enter a business dsa yet');
+      }
+
+      $expertCountryId = CRM_Businessdsa_Utils::getExpertCountry($expertId);
+      if (empty($expertCountryId)) {
+        $errorMessages[] = ts('The attached expert does not have a valid country in his/her address, you can not enter a business dsa yet');
+      }
+
+      $expertBankData = CRM_Businessdsa_Utils::getExpertBankData($expertId);
+      if (!isset($expertBankData['Bank_Account_Number']) || empty($expertBankData['Bank_Account_Number'])) {
+        $errorMessages[] = ts('The attached expert does not have a Bank Account Number, you can not enter a business dsa yet');
+      }
+      if (!isset($expertBankData['Bank_Country_ISO_Code']) || empty($expertBankData['Bank_Country_ISO_Code'])) {
+        $errorMessages[] = ts('The attached expert does not have a Bank Country, you can not enter a business dsa yet');
+      }
+    }
+
+    $donorCode = CRM_Businessdsa_Utils::getDonorCode(CRM_Threepeas_BAO_PumDonorLink::getCaseDonor($caseId));
+    if (empty($donorCode)) {
+      $errorMessages[] = ts('The attached donor does not have a Donor Code, you can not enter a business dsa yet');
+    }
+
+    foreach ($errorMessages as $errorMessage) {
+      $warning = array();
+      $warning['case_id'] = $caseId;
+      $warning['activity_id'] = $activityId;
+      $warning['message'] = $errorMessage;
+      $warnings[] = $warning;
+    }
   }
 }
