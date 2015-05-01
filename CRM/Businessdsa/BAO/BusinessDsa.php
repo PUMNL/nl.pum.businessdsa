@@ -962,4 +962,32 @@ class CRM_Businessdsa_BAO_BusinessDsa {
       $warnings[] = $warning;
     }
   }
+
+  /**
+   * Method to check if Expert can be removed from case
+   * - not possible if there still is a credit business dsa with status payable
+   *
+   * @param int $caseId
+   * @return bool
+   * @access public
+   * @static
+   */
+  public static function canExpertBeRemovedFromCase($caseId) {
+    $bdsaConfig = CRM_Businessdsa_Config::singleton();
+    if (!empty($caseId)) {
+      $caseActivityParams = array(
+        'case_id' => $caseId,
+        'activity_type_id' => $bdsaConfig->getCredBdsaActivityTypeId()
+      );
+      try {
+        $caseActivities = civicrm_api3('CaseActivity', 'Get', $caseActivityParams);
+        foreach ($caseActivities['values'] as $caseActivity) {
+          if (isset($caseActivity['status_id']) && $caseActivity['status_id'] == $bdsaConfig->getPayableActivityStatusValue()) {
+            return FALSE;
+          }
+        }
+      } catch (CiviCRM_API3_Exception $ex) {}
+    }
+    return TRUE;
+  }
 }

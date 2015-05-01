@@ -80,6 +80,10 @@ class CRM_Businessdsa_Config {
   protected $donorDataCustomGroupId = NULL;
   protected $donorDataCustomGroupTable = NULL;
   protected $donorCodeColumn = NULL;
+  /*
+   * property to hold the case roles for which only 1 is allowed on Business
+   */
+
 
   /**
    * Function to return singleton object
