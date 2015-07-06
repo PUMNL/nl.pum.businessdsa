@@ -175,8 +175,9 @@ class CRM_Businessdsa_BAO_BusinessDsa {
       $typeIdsToBeRemoved[] = $extensionConfig->getCredBdsaActivityTypeId();
       $typeIdsToBeRemoved[] = $extensionConfig->getDebBdsaActivityTypeId();
     } else {
-
       if (!CRM_Core_Permission::check('edit DSA activity')) {
+        $typeIdsToBeRemoved[] = $extensionConfig->getCredBdsaActivityTypeId();
+        $typeIdsToBeRemoved[] = $extensionConfig->getDebBdsaActivityTypeId();
       } else {
         if (!self::dsaCanBeCredited($caseId)) {
           $typeIdsToBeRemoved[] = $extensionConfig->getCredBdsaActivityTypeId();
