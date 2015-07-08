@@ -321,6 +321,8 @@ class CRM_Businessdsa_Utils {
       foreach ($bankFields as $bankFieldName => $bankField) {
         if ($bankFieldName == 'Bank_Country_ISO_Code') {
           $result[$bankFieldName] = self::getCountryIsoCode($dao->$bankField['column_name']);
+        } elseif ($bankFieldName == 'Accountholder_country') {
+          $result[$bankFieldName] = self::getCountryIsoCode($dao->$bankField['column_name']);
         } else {
           $result[$bankFieldName] = $dao->$bankField['column_name'];
         }
