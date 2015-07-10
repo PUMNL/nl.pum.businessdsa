@@ -6,7 +6,6 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.html
  */
 class CRM_Businessdsa_BAO_BusinessDsa {
-
   /**
    * Method to sum all non-accountable amounts of active components into base amount
    *
@@ -274,6 +273,7 @@ class CRM_Businessdsa_BAO_BusinessDsa {
    * @static
    */
   public static function getPayableBdsa($fromDate, $toDate, &$warnings) {
+    $extensionConfig = CRM_Businessdsa_Config::singleton();
     $payableBdsa = array();
     if (self::validExportParams($fromDate, $toDate) == TRUE) {
       $query = self::buildExportQuery($fromDate, $toDate);
@@ -281,7 +281,10 @@ class CRM_Businessdsa_BAO_BusinessDsa {
       $dao = CRM_Core_DAO::executeQuery($query, $queryParams);
       while ($dao->fetch()) {
         self::validatePaymentLine($dao->bdsa_case_id, $dao->bdsa_activity_id, $warnings);
-        $payableBdsa[] = self::formatExportPayment($dao);
+        $invoiceNumber = self::getSequence('invoice_number');
+        for ($lineType=$extensionConfig->getExportLineTypeBase(); $lineType<=$extensionConfig->getExportLineTypeAccountable(); $lineType++) {
+          $payableBdsa[] = self::formatExportPayment($dao, $invoiceNumber, $lineType);
+        }
         self::setBdsaToPaid($dao->bdsa_activity_id);
       }
     }
@@ -314,7 +317,7 @@ class CRM_Businessdsa_BAO_BusinessDsa {
    * @access private
    * @static
    */
-  private static function formatExportPayment($dao) {
+  private static function formatExportPayment($dao, $invoiceNumber, $lineType) {
     $extensionConfig = CRM_Businessdsa_Config::singleton();
     $paymentLine = array();
     /*
@@ -324,7 +327,11 @@ class CRM_Businessdsa_BAO_BusinessDsa {
     $paymentLine['Dagboek'] = 'I1';
     $paymentLine['Periode'] = date('m');
     $paymentLine['Boekstuk'] = self::getSequence('payment_line');
-    $paymentLine['GrootboekNr'] = $extensionConfig->getBdsaGlValue();
+    if ($lineType==$extensionConfig->getExportLineTypeBase()) {
+      $paymentLine['GrootboekNr'] = $extensionConfig->getBdsaGlValue();
+    } else {
+      $paymentLine['GrootboekNr'] = $extensionConfig->getBdsaGlAccountableValue();
+    }
     $paymentLine['Sponsorcode'] = CRM_Businessdsa_Utils::getDonorCode(CRM_Threepeas_BAO_PumDonorLink::getCaseDonor($dao->bdsa_case_id));
     $paymentLine['Datum'] = date('d-m-Y');
     $paymentLine['Bedrag'] = '0000000000';
@@ -332,11 +339,27 @@ class CRM_Businessdsa_BAO_BusinessDsa {
     $paymentLine['Filler2'] = ' ';
     $paymentLine['FactuurNrRunType'] = 'D';
     $paymentLine['FactuurNrYear'] = date('y', strtotime($dao->bdsa_activity_date));
-    $paymentLine['FactuurNr'] = self::getSequence('invoice_number');
-    $paymentLine['FactuurNrAmtType'] = 'x';
+    $paymentLine['FactuurNr'] = $invoiceNumber;
+	if ($lineType==$extensionConfig->getExportLineTypeBase()) {
+		$paymentLine['FactuurNrAmtType'] = 'x';
+	} else {
+		$paymentLine['FactuurNrAmtType'] = 'y';
+	}
     $paymentLine['FactuurDatum'] = date('d-m-Y', strtotime($dao->bdsa_activity_date));
-    $bdsaAmountColumn = $extensionConfig->getBdsaAmountCustomFieldColumn();
-    $paymentLine['FactuurBedrag'] = CRM_Businessdsa_Utils::formatAmountForExport($dao->$bdsaAmountColumn);
+	// start fix #2755 - eligable for rework
+    //$bdsaAmountColumn = $extensionConfig->getBdsaAmountCustomFieldColumn(); // REPLACED
+    $bdsaNumDaysColumn =  $extensionConfig->getBdsaNoOfDaysCustomFieldColumn();
+	$bdsaNumDays = $dao->$bdsaNumDaysColumn;
+    $bdsaNumPeopleColumn =  $extensionConfig->getBdsaNoOfPersonsCustomFieldColumn();
+	$bdsaNumPeople = $dao->$bdsaNumPeopleColumn;
+	//$paymentLine['FactuurBedrag'] = CRM_Businessdsa_Utils::formatAmountForExport($dao->$bdsaAmountColumn); // REPLACED
+    if ($lineType==$extensionConfig->getExportLineTypeBase()) {
+      $paymentLine['FactuurBedrag'] = $bdsaNumDays * $bdsaNumPeople * self::calculateBaseAmount();
+    } else {
+      $paymentLine['FactuurBedrag'] = $bdsaNumDays * $bdsaNumPeople * self::calculateAccountableAmount();
+    }
+	// end fix #2755
+
     $paymentLine['ValutaCode'] = 'EUR';
     $paymentLine['Taal'] = 'N';
     /*

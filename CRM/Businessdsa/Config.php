@@ -56,6 +56,7 @@ class CRM_Businessdsa_Config {
    */
   protected $glOptionGroupId = NULL;
   protected $bdsaGlValue = NULL;
+  protected $bdsaGlAccountableValue = NULL;
   /*
    * properties for custom group Additional Data and field Shortname
    */
@@ -80,6 +81,11 @@ class CRM_Businessdsa_Config {
   protected $donorDataCustomGroupId = NULL;
   protected $donorDataCustomGroupTable = NULL;
   protected $donorCodeColumn = NULL;
+  /*
+   * properties for referencing business dsa line types in payment export
+   */
+  protected $exportLineTypeBase = 0;
+  protected $exportLineTypeAccountable = 1;
   /*
    * property to hold the case roles for which only 1 is allowed on Business
    */
@@ -162,6 +168,16 @@ class CRM_Businessdsa_Config {
    */
   public function getBdsaGlValue() {
     return $this->bdsaGlValue;
+  }
+
+  /**
+   * Method to get the general ledger option value for business dsa accountable
+   *
+   * @return string
+   * @access public
+   */
+  public function getBdsaGlAccountableValue() {
+    return $this->bdsaGlAccountableValue;
   }
 
   /**
@@ -482,6 +498,26 @@ class CRM_Businessdsa_Config {
   public function getDebBdsaActivityTypeId() {
     return $this->debBdsaActTypeId;
   }
+  
+  /**
+   * Method to get a numeric identifier a business dsa "base amount"-line type in payment export
+   *
+   * @return int
+   * @access public
+   */
+  public function getExportLineTypeBase() {
+    return $this->exportLineTypeBase;
+  }
+  
+  /**
+   * Method to get a numeric identifier a business dsa "accountable amount"-line type in payment export
+   *
+   * @return int
+   * @access public
+   */
+  public function getExportLineTypeAccountable() {
+    return $this->exportLineTypeAccountable;
+  }
 
   /**
    * Method to create the activity types for debit and credit business dsa if not exist
@@ -658,6 +694,7 @@ class CRM_Businessdsa_Config {
   private function setGeneralLedgerProperties() {
     $this->glOptionGroupId = CRM_Businessdsa_Utils::getOptionGroupIdWithName('general_ledger');
     $this->bdsaGlValue = CRM_Businessdsa_Utils::createOptionValueIfNotExists($this->glOptionGroupId, 'business_dsa');
+	$this->bdsaGlAccountableValue = CRM_Businessdsa_Utils::createOptionValueIfNotExists($this->glOptionGroupId, 'business_dsa_accountable');
   }
 
   /**
