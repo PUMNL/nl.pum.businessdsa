@@ -769,7 +769,7 @@ class CRM_Businessdsa_BAO_BusinessDsa {
 
     // define statuses which are handled like Completed status (others are assumed to be handled like Scheduled status)
     $compStatusValues = array();
-    $compStatusNames = array('Completed', 'Left Message', 'Cancelled', 'Unreachable', 'Not Required');
+    $compStatusNames = array('Completed', 'Left Message', 'Cancelled', 'Unreachable', 'Not Required', 'dsa_paid', 'bdsa_paid'); // Redmine #2015: added status paid (2x)
     foreach ($compStatusNames as $name) {
       $compStatusValues[] = CRM_Core_OptionGroup::getValue('activity_status', $name, 'name');
     }
@@ -857,7 +857,14 @@ class CRM_Businessdsa_BAO_BusinessDsa {
           //hide Edit link if activity type is NOT editable (special case activities).CRM-5871
           if ($allowEdit) {
             $url = '<a href="' . $editUrl . $additionalUrl . '">' . ts('Edit') . '</a> ';
-          }
+          } else {
+            // Redmine #2062: use "view"-link to url for editing: nl.pum.nl will present the activity in readmode
+            if (method_exists('CRM_Dsa_Utils', 'isDsaActivityType')) {
+              if (CRM_Dsa_Utils::isDsaActivityType($dao->activity_type_id, $dao->status) == TRUE) {
+                $url = '<a href="' . $editUrl . $additionalUrl . '">' . ts('View') . '</a> ';
+              }
+            }
+		  }
         }
         if ($allowDelete) {
           if (!empty($url)) {
