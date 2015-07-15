@@ -354,9 +354,9 @@ class CRM_Businessdsa_BAO_BusinessDsa {
 	$bdsaNumPeople = $dao->$bdsaNumPeopleColumn;
 	//$paymentLine['FactuurBedrag'] = CRM_Businessdsa_Utils::formatAmountForExport($dao->$bdsaAmountColumn); // REPLACED
     if ($lineType==$extensionConfig->getExportLineTypeBase()) {
-      $paymentLine['FactuurBedrag'] = $bdsaNumDays * $bdsaNumPeople * self::calculateBaseAmount();
+      $paymentLine['FactuurBedrag'] = CRM_Businessdsa_Utils::formatAmountForExport($bdsaNumDays * $bdsaNumPeople * self::calculateBaseAmount());
     } else {
-      $paymentLine['FactuurBedrag'] = $bdsaNumDays * $bdsaNumPeople * self::calculateAccountableAmount();
+      $paymentLine['FactuurBedrag'] = CRM_Businessdsa_Utils::formatAmountForExport($bdsaNumDays * $bdsaNumPeople * self::calculateAccountableAmount());
     }
 	// end fix #2755
 
