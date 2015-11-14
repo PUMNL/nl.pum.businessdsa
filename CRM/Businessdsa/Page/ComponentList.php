@@ -16,10 +16,6 @@ class CRM_Businessdsa_Page_ComponentList extends CRM_Core_Page {
    */
   function run() {
     $this->setPageConfiguration();
-
-    //temp test
-    CRM_Businessdsa_BAO_BusinessDsa::getExpertBdsa(254);
-
     $displayComponents = $this->getComponents();
     $this->assign('components', $displayComponents);
     parent::run();
