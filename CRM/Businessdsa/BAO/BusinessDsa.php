@@ -132,7 +132,9 @@ class CRM_Businessdsa_BAO_BusinessDsa {
       $typeIndex = $form->_elementIndex['activity_type_id'];
     }
     if ($context == 'activity') {
-      $typeIndex = $form->_elementIndex['followup_activity_type_id'];
+      if (isset($form->_elementIndex['followup_activity_type_id'])) {
+        $typeIndex = $form->_elementIndex['followup_activity_type_id'];
+      }
     }
     if (!empty($typeIndex)) {
       $caseId = $form->getVar('_caseID');
