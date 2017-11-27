@@ -339,9 +339,19 @@ class CRM_Businessdsa_BAO_BusinessDsa {
     $paymentLine['Bedrag'] = '0000000000';
     $paymentLine['Filler1'] = ' ';
     $paymentLine['Filler2'] = ' ';
-    $paymentLine['FactuurNrRunType'] = 'D';
-    $paymentLine['FactuurNrYear'] = date('y', strtotime($dao->bdsa_activity_date));
-    $paymentLine['FactuurNr'] = $invoiceNumber;
+    if ($dao->bdsa_activity_type_id == $extensionConfig->getDebBdsaActivityTypeId()) {
+      $paymentLine['FactuurNrRunType'] = 'D';
+      $paymentLine['FactuurNrYear'] = date('y', strtotime($dao->bdsa_activity_date));
+      $invoiceNumber = substr_replace($invoiceNumber, 'D',0,1);
+      $paymentLine['FactuurNr'] = $invoiceNumber;
+    } else {
+      //Creditation: change runtype to C and year to 99 (this is a requirement for the payment system :( )
+      $paymentLine['FactuurNrRunType'] = 'C';	//C for Creditation
+      $paymentLine['FactuurNrYear'] = '99'; // In creditation number should be 99
+      $invoiceNumber = substr_replace($invoiceNumber, 'C',0,1);
+      $paymentLine['FactuurNr'] = $invoiceNumber;
+    }
+
 	if ($lineType==$extensionConfig->getExportLineTypeBase()) {
 		$paymentLine['FactuurNrAmtType'] = 'x';
 	} else {
