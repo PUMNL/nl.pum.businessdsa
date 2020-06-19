@@ -361,9 +361,9 @@ class CRM_Businessdsa_BAO_BusinessDsa {
 	// start fix #2755 - eligable for rework
     //$bdsaAmountColumn = $extensionConfig->getBdsaAmountCustomFieldColumn(); // REPLACED
     $bdsaNumDaysColumn =  $extensionConfig->getBdsaNoOfDaysCustomFieldColumn();
-	$bdsaNumDays = $dao->$bdsaNumDaysColumn;
+    $bdsaNumDays = $dao->$bdsaNumDaysColumn;
     $bdsaNumPeopleColumn =  $extensionConfig->getBdsaNoOfPersonsCustomFieldColumn();
-	$bdsaNumPeople = $dao->$bdsaNumPeopleColumn;
+    $bdsaNumPeople = $dao->$bdsaNumPeopleColumn;
 	//$paymentLine['FactuurBedrag'] = CRM_Businessdsa_Utils::formatAmountForExport($dao->$bdsaAmountColumn); // REPLACED
     if ($lineType==$extensionConfig->getExportLineTypeBase()) {
       $paymentLine['FactuurBedrag'] = CRM_Businessdsa_Utils::formatAmountForExport($bdsaNumDays * $bdsaNumPeople * self::calculateBaseAmount());
@@ -427,7 +427,12 @@ class CRM_Businessdsa_BAO_BusinessDsa {
     $paymentLine['BankPlaats'] = $bankData['Bank_City'];
     $paymentLine['BankLand'] = $bankData['Bank_Country_ISO_Code'];
     $paymentLine['BIC'] = $bankData['BIC_Swiftcode'];
-    $formattedOutput = CRM_Dsa_Utils::dsa_concatValues($paymentLine);
+    $paymentLine['Projecttype'] = $extensionConfig->getBusinessCaseTypeName();
+    $paymentLine['Sector'] = CRM_Businessdsa_Utils::getMainSector($caseExpertId);
+    $paymentLine['Artikel'] = CRM_Businessdsa_Utils::getCountryOfClient(CRM_Businessdsa_Utils::getClientOfCase($dao->bdsa_case_id));
+    $paymentLine['Omschrijving'] = CRM_Businessdsa_Utils::getCountryOfClient(CRM_Businessdsa_Utils::getClientOfCase($dao->bdsa_case_id));
+
+    $formattedOutput = CRM_Dsa_Utils::businessdsa_concatValues($paymentLine);
     return $formattedOutput;
   }
 

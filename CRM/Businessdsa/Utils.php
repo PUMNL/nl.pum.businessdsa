@@ -397,4 +397,106 @@ class CRM_Businessdsa_Utils {
     }
     return $countryId;
   }
+
+  /**
+   * Method to get the main sector of the expert
+   *
+   * @param int $expertId
+   * @return string $mainSector
+   * @access public
+   * @static
+   */
+  public static function getMainSector($expertId) {
+    $mainSector = null;
+    if (!empty($expertId)) {
+      $params_mainsectors = array(
+        'version' => 3,
+        'sequential' => 1,
+        'contact_id' => $expertId,
+        'is_active' => 1,
+        'is_main' => 1
+      );
+      try {
+        $api_data = null;
+        $mainSectors = civicrm_api3('ContactSegment', 'get', $params_mainsectors);
+        foreach($mainSectors['values'] as $key => $value){
+          $api_data[] = $value;
+        }
+      } catch (CiviCRM_API3_Exception $ex) {
+        $mainSectors = null;
+        $api_data = null;
+      }
+
+      if(is_array($api_data)){
+        foreach($api_data as $key => $value){
+          if(!empty($value['segment_id'])){
+            try {
+              $params_segment = array(
+                'version' => 3,
+                'sequential' => 1,
+                'id' => $value['segment_id'],
+              );
+              $mainSectorData = civicrm_api('Segment', 'getsingle', $params_segment);
+              if(!empty($mainSectorData['label'])){
+                $mainSector = $mainSectorData['label'];
+              }
+            } catch (CiviCRM_API3_Exception $ex) {
+              $mainSectorData = null;
+              $mainSector = null;
+            }
+          }
+        }
+      }
+    }
+    return $mainSector;
+  }
+
+  /**
+   * Method to get the client of a case
+   *
+   * @param int $caseId
+   * @return int $clientId
+   * @access public
+   * @static
+   */
+  public static function getClientOfCase($caseId) {
+    $clientId = null;
+
+    try{
+      $clientId = CRM_Core_DAO::singleValueQuery('SELECT contact_id FROM civicrm_case_contact WHERE case_id = %1', array(1 => array($caseId, 'Integer')));
+    } catch(Exception $e) {
+      $clientId = null;
+    }
+    return $clientId;
+  }
+
+  /**
+   * Method to get the country of the client
+   *
+   * @param int $clientId
+   * @return string $countryName
+   * @access public
+   * @static
+   */
+  public static function getCountryOfClient($clientId) {
+    $countryName = null;
+    if (!empty($clientId)) {
+
+      try {
+        $params_contact_client = array(
+          'version' => 3,
+          'sequential' => 1,
+          'id' => $clientId,
+        );
+        $contact_client = civicrm_api('Contact', 'getsingle', $params_contact_client);
+
+        if(!empty($contact_client['country'])){
+          $countryName = $contact_client['country'];
+        }
+      } catch (CiviCRM_API3_Exception $ex) {
+        $countryName = null;
+      }
+    }
+    return $countryName;
+  }
 }
